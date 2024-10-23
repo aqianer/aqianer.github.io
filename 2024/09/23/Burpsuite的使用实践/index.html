@@ -17,20 +17,20 @@
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
   <meta name="theme-color" content="#f9fafb">
   
-  <title>公司业务系统分析 - 操小刀的漫游笔记</title>
+  <title>Burpsuite抓包实践 - 操小刀的漫游笔记</title>
 
   
-    <meta name="description" content="金融类业务  MM系统业务介绍（基线+定制）what kind of 业务类型（BO or TC）? graph LR     subgraph four [&quot;Who&quot;]         Identitiy         style Identitiy fill:#74b205,stroke:red,color:#fff,stroke-dasharray: 2 2     end">
+    <meta name="description" content="实现隐藏root和绕过SSL证书校验抓包 场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到Android8.1就不再更新了, 因此Android 9.0以上的模拟器需要选择其它方案。  1. 实现隐藏root和绕过SSL证书校验抓包 安装模拟器雷电9（Android9.0兼容arm架">
 <meta property="og:type" content="article">
-<meta property="og:title" content="公司业务系统分析">
-<meta property="og:url" content="https://aqianer.github.io/2024/10/22/%E5%85%AC%E5%8F%B8%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E5%88%86%E6%9E%90/index.html">
+<meta property="og:title" content="Burpsuite抓包实践">
+<meta property="og:url" content="https://aqianer.github.io/2024/09/23/Burpsuite%E7%9A%84%E4%BD%BF%E7%94%A8%E5%AE%9E%E8%B7%B5/index.html">
 <meta property="og:site_name" content="操小刀的漫游笔记">
-<meta property="og:description" content="金融类业务  MM系统业务介绍（基线+定制）what kind of 业务类型（BO or TC）? graph LR     subgraph four [&quot;Who&quot;]         Identitiy         style Identitiy fill:#74b205,stroke:red,color:#fff,stroke-dasharray: 2 2     end">
+<meta property="og:description" content="实现隐藏root和绕过SSL证书校验抓包 场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到Android8.1就不再更新了, 因此Android 9.0以上的模拟器需要选择其它方案。  1. 实现隐藏root和绕过SSL证书校验抓包 安装模拟器雷电9（Android9.0兼容arm架">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-10-22T13:35:41.900Z">
-<meta property="article:modified_time" content="2024-10-23T14:16:26.671Z">
+<meta property="article:published_time" content="2024-09-22T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-10-23T14:12:43.561Z">
 <meta property="article:author" content="aqianer">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary">
   
   
   
@@ -78,91 +78,65 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-10-22T13:35:41.900Z">2024-10-22</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-10-23T14:16:26.671Z">2024-10-23</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-09-22T16:00:00.000Z">2024-09-23</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-10-23T14:12:43.561Z">2024-10-23</time></span></div></div></div>
     
     <div class="bottom only-title">
       
       <div class="text-area">
-        <h1 class="text title"><span>公司业务系统分析</span></h1>
+        <h1 class="text title"><span>Burpsuite抓包实践</span></h1>
         
       </div>
     </div>
     
   </div>
-  </div><article class="md-text content"><blockquote>
-<p>金融类业务</p>
+  </div><article class="md-text content"><h4 id="实现隐藏root和绕过SSL证书校验抓包"><a href="#实现隐藏root和绕过SSL证书校验抓包" class="headerlink" title="实现隐藏root和绕过SSL证书校验抓包"></a>实现隐藏root和绕过SSL证书校验抓包</h4><blockquote>
+<p>场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到Android8.1就不再更新了, 因此Android 9.0以上的模拟器需要选择其它方案。</p>
 </blockquote>
-<p>MM系统业务介绍（基线+定制）<br>what kind of 业务类型（BO or TC）?</p>
-<pre class="mermaid">graph LR
-    subgraph four ["Who"]
-        Identitiy
-        style Identitiy fill:#74b205,stroke:red,color:#fff,stroke-dasharray: 2 2
-    end
-  
-    subgraph one ["What"]
-        Product["fa:fa-cogs Product"]
-        Service["fa:fa-graduation-cap Service"]
-        Transaction["fa:fa-cogs Transaction Type"]  
-        Product & Service & Transaction 
-        style Product fill:#ff9a37,stroke:red,color:#fff,stroke-dasharray: 2 2
-        style Service fill:#ff9a37,stroke:red,color:#fff,stroke-dasharray: 2 2
-        style Transaction fill:#ff9a37,stroke:red,color:#fff,stroke-dasharray: 2 2
-    end
+<h6 id="1-实现隐藏root和绕过SSL证书校验抓包"><a href="#1-实现隐藏root和绕过SSL证书校验抓包" class="headerlink" title="1. 实现隐藏root和绕过SSL证书校验抓包"></a>1. 实现隐藏root和绕过SSL证书校验抓包</h6><blockquote>
+<p>安装模拟器雷电9（Android9.0兼容arm架构）：ldinst9_9.0.24.2.exe</p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://res.ldmnq.com/download/leidian9/ldinst9_9.0.24.2.exe">https://res.ldmnq.com/download/leidian9/ldinst9_9.0.24.2.exe</a></p>
+</blockquote>
+<h6 id="2-设置代理："><a href="#2-设置代理：" class="headerlink" title="2. 设置代理："></a>2. 设置代理：</h6><p>Burpsuiteproxy配置选择本机ip，端口号按如下设置</p>
+<h6 id="3-安装burpsuite证书在burpsuite-proxy-options导出证书，导入到模拟器中并安装"><a href="#3-安装burpsuite证书在burpsuite-proxy-options导出证书，导入到模拟器中并安装" class="headerlink" title="3. 安装burpsuite证书在burpsuite proxy options导出证书，导入到模拟器中并安装"></a>3. 安装burpsuite证书在burpsuite proxy options导出证书，导入到模拟器中并安装</h6><blockquote>
+<p>由于模拟器设置burp代理访问https，会提示证书不信任，需要装LSposed框架来安装justtrustme插件和magisk隐藏root（一般应用会检测是否系统是否root,如果是则退出应用）。</p>
+</blockquote>
+<h6 id="4-开启模拟器root权限和adb调试权限。adb命令大全"><a href="#4-开启模拟器root权限和adb调试权限。adb命令大全" class="headerlink" title="4. 开启模拟器root权限和adb调试权限。adb命令大全"></a>4. 开启模拟器root权限和adb调试权限。<a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/2342099">adb命令大全</a></h6><blockquote>
+<p>用powershell执行adb命令需要将adb.exe配置到环境变量里</p>
+</blockquote>
+<h6 id="5-性能设置里，将System-vmdk设置成可写入。然后重启模拟器"><a href="#5-性能设置里，将System-vmdk设置成可写入。然后重启模拟器" class="headerlink" title="5. 性能设置里，将System.vmdk设置成可写入。然后重启模拟器"></a>5. 性能设置里，将System.vmdk设置成可写入。然后重启模拟器</h6><h6 id="6-安装magisk管理器，这里雷电9应该安装debug版本的。"><a href="#6-安装magisk管理器，这里雷电9应该安装debug版本的。" class="headerlink" title="6. 安装magisk管理器，这里雷电9应该安装debug版本的。"></a>6. 安装magisk管理器，这里雷电9应该安装debug版本的。</h6><p><a target="_blank" rel="noopener" href="https://github.com/topjohnwu/magisk-files/blob/canary/app-debug.apk">https://github.com/topjohnwu/magisk-files/blob/canary/app-debug.apk</a></p>
+<h6 id="7-给magisk超级用户权限"><a href="#7-给magisk超级用户权限" class="headerlink" title="7. 给magisk超级用户权限"></a>7. 给magisk超级用户权限</h6><blockquote>
+<p>要给面具开root，涉及到adb是否可以切换到su权限</p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="built_in">PS</span> C:\Users\c60038363\Desktop\小工具\雷电模拟器\雷电模拟器&gt; adb shell</span><br><span class="line"></span><br><span class="line">star2qltechn:/ <span class="variable">$</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">star2qltechn:/ <span class="variable">$</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">star2qltechn:/ <span class="variable">$</span> su</span><br><span class="line"></span><br><span class="line">su</span><br><span class="line"></span><br><span class="line">star2qltechn:/<span class="comment">#</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-    subgraph two ["How"]
-        RuleProfile
-        resontype
-        accounttype
-        Notification   
-        RuleProfile & resontype & accounttype 
-        style RuleProfile fill:#2e98d8,stroke:red,color:#fff,stroke-dasharray: 2 2
-        style resontype fill:#2e98d8,stroke:red,color:#fff,stroke-dasharray: 2 2
-        style accounttype fill:#2e98d8,stroke:red,color:#fff,stroke-dasharray: 2 2
-        style Notification fill:#2e98d8,stroke:red,color:#fff,stroke-dasharray: 2 2
-    end
+<br>
 
-    subgraph three ["How Much"]
-        ChargeProfile
-        ChargeType
-        style ChargeProfile fill:#03aeab,stroke:red,color:#fff,stroke-dasharray: 2 2
-        style ChargeType fill:#03aeab,stroke:red,color:#fff,stroke-dasharray: 2 2
-    end
-    Identitiy --> Product --> Service --> resontype --> accounttype
-    Identitiy --> ChargeProfile --> resontype --> ChargeType
-    Identitiy --> RuleProfile --> resontype --> Transaction
-    RuleProfile --> accounttype
-    resontype --> Notification</pre>
+<h6 id="8-点击安装，允许权限，下一步，方式选择安装至系统分区，然后开始"><a href="#8-点击安装，允许权限，下一步，方式选择安装至系统分区，然后开始" class="headerlink" title="8. 点击安装，允许权限，下一步，方式选择安装至系统分区，然后开始"></a>8. 点击安装，允许权限，下一步，方式选择安装至系统分区，然后开始</h6><h6 id="9-打开magisk设置，勾选zygisk后，重启"><a href="#9-打开magisk设置，勾选zygisk后，重启" class="headerlink" title="9. 打开magisk设置，勾选zygisk后，重启"></a>9. 打开magisk设置，勾选zygisk后，重启</h6><h6 id="10-安装lsposed：https-github-com-LSPosed-LSPosed-releases"><a href="#10-安装lsposed：https-github-com-LSPosed-LSPosed-releases" class="headerlink" title="10. 安装lsposed：https://github.com/LSPosed/LSPosed/releases"></a>10. 安装lsposed：<a target="_blank" rel="noopener" href="https://github.com/LSPosed/LSPosed/releases">https://github.com/LSPosed/LSPosed/releases</a></h6><blockquote>
+<p>将LSPosed-v1.8.4-6609-zygisk-release.zip推送到模拟器，magisk模块选择从本地安装。安装完重启</p>
+</blockquote>
+<blockquote>
+<p>配置</p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">adb push LSPosed<span class="literal">-v1</span>.<span class="number">8.4</span><span class="literal">-6609-zygisk-release</span>.zip /sdcard/Download/</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<p>是交易？Who was involved in？（org | cousomer | SP）<br>交易如何完成？（发起渠道channel | <code>&lt;span style=&quot;background-color:rgb(253,216,53)&quot;&gt;</code>交易场景 | 交易模型 | 账户类型 | 限制规则 | 通知）<br>交易计费（charge type）–佣金计费税手续费</p>
-<p>常使用的工具（用到的技术）K8S和docker<br>soap协议与rpc协议和http协议<br>网元（微服务）<br>基于tomcat和ebus以及CIT（渠道交互）实现的业务网关<br>app -&gt; 内置小程序接入MM后台<br>数据库</p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Tuing_/article/details/129875279">https://blog.csdn.net/Tuing_/article/details/129875279</a></p>
-<pre class="mermaid">sequenceDiagram
-    participant A as 接入方
-    participant B as accessAdapter
-    participant C as 消息模板
-    participant D as 服务路由
-    participant E as serviceAdapter
-    participant G as 服务网元
-    participant F as 性能监控
-    A ->> B : 请求消息
-    activate B
-    B ->> B : 消息规整
-    B -->>+ C : 参数映射
-    C -->>- B : 映射响应
-    B ->> B : 请求预处理
-  
-    B ->>+ D : 查找目标服务
-    D ->>- B : 路由消息响应
-    B ->> E : 服务调用
-    E ->>+ G : 服务调用
-    G ->> G : 业务处理
-    G ->>- B : 业务响应
-  
-    B -->> B : 请求后处理
-    B -->> F : 更新统计数据
-    B ->> A : 响应消息
-    deactivate B</pre>
-
+<h6 id="11-安装LSPosed-Manager-模拟器打开文件管理器"><a href="#11-安装LSPosed-Manager-模拟器打开文件管理器" class="headerlink" title="11. 安装LSPosed Manager 模拟器打开文件管理器"></a>11. 安装LSPosed Manager 模拟器打开文件管理器</h6><blockquote>
+<p>下载到本地，然后安装manager.apk</p>
+</blockquote>
+<h6 id="12-安装justtrustme-https-github-com-ViRb3-TrustMeAlready"><a href="#12-安装justtrustme-https-github-com-ViRb3-TrustMeAlready" class="headerlink" title="12. 安装justtrustme https://github.com/ViRb3/TrustMeAlready"></a>12. 安装justtrustme <a target="_blank" rel="noopener" href="https://github.com/ViRb3/TrustMeAlready">https://github.com/ViRb3/TrustMeAlready</a></h6><blockquote>
+<p>安装apk后，在lsposed上启动模块，选择要启动的该模块的应用</p>
+</blockquote>
+<h6 id="13-隐藏root，"><a href="#13-隐藏root，" class="headerlink" title="13. 隐藏root，"></a>13. 隐藏root，</h6><blockquote>
+<p>进入magisk设置，选择magiskhide菜单，选择要隐藏的进程，即可针对app隐藏root检测。</p>
+</blockquote>
+<blockquote>
+<p>最后。需要关闭虚拟机自带root权限，让magisk来接管root权限,来应对下面问题:</p>
+</blockquote>
+<blockquote>
+<p>进入magisk提示不属于magisk的su。此时要关闭模拟器自带的root。再重启</p>
+</blockquote>
+<h6 id="14-再重启模拟器，即可实现隐藏root和绕过SSL证书校验抓包。"><a href="#14-再重启模拟器，即可实现隐藏root和绕过SSL证书校验抓包。" class="headerlink" title="14. 再重启模拟器，即可实现隐藏root和绕过SSL证书校验抓包。"></a>14. 再重启模拟器，即可实现隐藏root和绕过SSL证书校验抓包。</h6>
 <div class="article-footer fs14">
     <section id="license">
       <div class="header"><span>许可协议</span></div>
@@ -171,7 +145,7 @@
     </section>
     </div>
 </article>
-<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2024/10/22/%E8%A3%85%E6%9C%BA%E5%AE%9E%E8%B7%B5%E8%AE%B0%E5%BD%95%E3%80%81%E7%94%B5%E8%84%91%E5%8F%8C%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%AE%89%E8%A3%85%E5%AE%9E%E8%B7%B5%E8%AE%B0%E5%BD%95/">装机实践记录、电脑双系统的安装实践记录</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2024/10/22/%E4%B8%AA%E4%BA%BA%E7%BD%91%E7%AB%99%E6%90%AD%E5%BB%BA%E5%AE%9E%E8%B7%B5%E6%80%BB%E7%BB%93/">个人网站搭建实践记录</a></div></section></div>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2024/10/19/hello-world/">Hello World</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2022/12/23/work_record/">工作常见问题记录</a></div></section></div>
 
 
 
@@ -181,7 +155,14 @@
 <footer class="page-footer footnote"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs15">博客</span><a href="/">近期</a><a href="/">分类</a><a href="/">标签</a><a href="/">归档</a></div><div class="sitemap-group"><span class="fs15">项目</span><a href="/">开源库</a></div><div class="sitemap-group"><span class="fs15">社交</span><a href="/">友链</a><a href="/">留言板</a></div><div class="sitemap-group"><span class="fs15">更多</span><a href="/">关于本站</a><a href="/">GitHub</a></div></div><div class="text"><p>本站由 <a href="/">aqianer</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.29.1">Stellar 1.29.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
 </div></footer>
 <div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
-</aside><div class='float-panel blur'>
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E9%9A%90%E8%97%8Froot%E5%92%8C%E7%BB%95%E8%BF%87SSL%E8%AF%81%E4%B9%A6%E6%A0%A1%E9%AA%8C%E6%8A%93%E5%8C%85"><span class="toc-text">实现隐藏root和绕过SSL证书校验抓包</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#1-%E5%AE%9E%E7%8E%B0%E9%9A%90%E8%97%8Froot%E5%92%8C%E7%BB%95%E8%BF%87SSL%E8%AF%81%E4%B9%A6%E6%A0%A1%E9%AA%8C%E6%8A%93%E5%8C%85"><span class="toc-text">1. 实现隐藏root和绕过SSL证书校验抓包</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-%E8%AE%BE%E7%BD%AE%E4%BB%A3%E7%90%86%EF%BC%9A"><span class="toc-text">2. 设置代理：</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#3-%E5%AE%89%E8%A3%85burpsuite%E8%AF%81%E4%B9%A6%E5%9C%A8burpsuite-proxy-options%E5%AF%BC%E5%87%BA%E8%AF%81%E4%B9%A6%EF%BC%8C%E5%AF%BC%E5%85%A5%E5%88%B0%E6%A8%A1%E6%8B%9F%E5%99%A8%E4%B8%AD%E5%B9%B6%E5%AE%89%E8%A3%85"><span class="toc-text">3. 安装burpsuite证书在burpsuite proxy options导出证书，导入到模拟器中并安装</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-%E5%BC%80%E5%90%AF%E6%A8%A1%E6%8B%9F%E5%99%A8root%E6%9D%83%E9%99%90%E5%92%8Cadb%E8%B0%83%E8%AF%95%E6%9D%83%E9%99%90%E3%80%82adb%E5%91%BD%E4%BB%A4%E5%A4%A7%E5%85%A8"><span class="toc-text">4. 开启模拟器root权限和adb调试权限。adb命令大全</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#5-%E6%80%A7%E8%83%BD%E8%AE%BE%E7%BD%AE%E9%87%8C%EF%BC%8C%E5%B0%86System-vmdk%E8%AE%BE%E7%BD%AE%E6%88%90%E5%8F%AF%E5%86%99%E5%85%A5%E3%80%82%E7%84%B6%E5%90%8E%E9%87%8D%E5%90%AF%E6%A8%A1%E6%8B%9F%E5%99%A8"><span class="toc-text">5. 性能设置里，将System.vmdk设置成可写入。然后重启模拟器</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#6-%E5%AE%89%E8%A3%85magisk%E7%AE%A1%E7%90%86%E5%99%A8%EF%BC%8C%E8%BF%99%E9%87%8C%E9%9B%B7%E7%94%B59%E5%BA%94%E8%AF%A5%E5%AE%89%E8%A3%85debug%E7%89%88%E6%9C%AC%E7%9A%84%E3%80%82"><span class="toc-text">6. 安装magisk管理器，这里雷电9应该安装debug版本的。</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#7-%E7%BB%99magisk%E8%B6%85%E7%BA%A7%E7%94%A8%E6%88%B7%E6%9D%83%E9%99%90"><span class="toc-text">7. 给magisk超级用户权限</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#8-%E7%82%B9%E5%87%BB%E5%AE%89%E8%A3%85%EF%BC%8C%E5%85%81%E8%AE%B8%E6%9D%83%E9%99%90%EF%BC%8C%E4%B8%8B%E4%B8%80%E6%AD%A5%EF%BC%8C%E6%96%B9%E5%BC%8F%E9%80%89%E6%8B%A9%E5%AE%89%E8%A3%85%E8%87%B3%E7%B3%BB%E7%BB%9F%E5%88%86%E5%8C%BA%EF%BC%8C%E7%84%B6%E5%90%8E%E5%BC%80%E5%A7%8B"><span class="toc-text">8. 点击安装，允许权限，下一步，方式选择安装至系统分区，然后开始</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#9-%E6%89%93%E5%BC%80magisk%E8%AE%BE%E7%BD%AE%EF%BC%8C%E5%8B%BE%E9%80%89zygisk%E5%90%8E%EF%BC%8C%E9%87%8D%E5%90%AF"><span class="toc-text">9. 打开magisk设置，勾选zygisk后，重启</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#10-%E5%AE%89%E8%A3%85lsposed%EF%BC%9Ahttps-github-com-LSPosed-LSPosed-releases"><span class="toc-text">10. 安装lsposed：https:&#x2F;&#x2F;github.com&#x2F;LSPosed&#x2F;LSPosed&#x2F;releases</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#11-%E5%AE%89%E8%A3%85LSPosed-Manager-%E6%A8%A1%E6%8B%9F%E5%99%A8%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86%E5%99%A8"><span class="toc-text">11. 安装LSPosed Manager 模拟器打开文件管理器</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#12-%E5%AE%89%E8%A3%85justtrustme-https-github-com-ViRb3-TrustMeAlready"><span class="toc-text">12. 安装justtrustme https:&#x2F;&#x2F;github.com&#x2F;ViRb3&#x2F;TrustMeAlready</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#13-%E9%9A%90%E8%97%8Froot%EF%BC%8C"><span class="toc-text">13. 隐藏root，</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#14-%E5%86%8D%E9%87%8D%E5%90%AF%E6%A8%A1%E6%8B%9F%E5%99%A8%EF%BC%8C%E5%8D%B3%E5%8F%AF%E5%AE%9E%E7%8E%B0%E9%9A%90%E8%97%8Froot%E5%92%8C%E7%BB%95%E8%BF%87SSL%E8%AF%81%E4%B9%A6%E6%A0%A1%E9%AA%8C%E6%8A%93%E5%8C%85%E3%80%82"><span class="toc-text">14. 再重启模拟器，即可实现隐藏root和绕过SSL证书校验抓包。</span></a></li></ol></li></ol></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
   <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
   </button>
