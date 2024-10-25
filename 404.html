@@ -427,13 +427,13 @@
 
   <script type="module">
   const el = document.getElementById('twikoo_container');
-  util.viewportLazyload(el, load_twikoo, false);
+  util.viewportLazyload(el, load_twikoo, true);
 
   function load_twikoo() {
     if (!el) return;
     utils.js('https://gcore.jsdelivr.net/npm/twikoo@1.6.8/dist/twikoo.all.min.js', {defer: true}).then(function () {
       const path = el.getAttribute('comment_id') ?? decodeURI(window.location.pathname);
-      twikoo.init(Object.assign({"js":"https://gcore.jsdelivr.net/npm/twikoo@1.6.8/dist/twikoo.all.min.js","envId":"https://xxx"}, {
+      twikoo.init(Object.assign({"js":"https://gcore.jsdelivr.net/npm/twikoo@1.6.8/dist/twikoo.all.min.js","envId":"https://my-twikoo-70q4s8qwx-cl-cs-projects-e3ecbf09.vercel.app"}, {
         el: '#twikoo_container',
         path: path,
       }));

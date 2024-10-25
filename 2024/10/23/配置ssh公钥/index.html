@@ -155,7 +155,7 @@
       <div class='title cap theme'>您可能感兴趣的文章</div>
     </section>
     <section class='body'>
-    <div class="related-posts"><a class="item" href="\2024\09\23\Burpsuite的使用实践\" title="Burpsuite抓包实践"><span class="title">Burpsuite抓包实践</span></a></div></section></div>
+    <div class="related-posts"><a class="item" href="\2024\10\22\Linux系统文件目录及指令\" title="Linux系统文件目录及指令录"><span class="title">Linux系统文件目录及指令录</span><span class="excerpt">开发人员经常用到的一些Linux命令</span></a></div></section></div>
 
 
   <div class="related-wrap md-text" id="comments">
@@ -500,13 +500,13 @@
 
   <script type="module">
   const el = document.getElementById('twikoo_container');
-  util.viewportLazyload(el, load_twikoo, false);
+  util.viewportLazyload(el, load_twikoo, true);
 
   function load_twikoo() {
     if (!el) return;
     utils.js('https://gcore.jsdelivr.net/npm/twikoo@1.6.8/dist/twikoo.all.min.js', {defer: true}).then(function () {
       const path = el.getAttribute('comment_id') ?? decodeURI(window.location.pathname);
-      twikoo.init(Object.assign({"js":"https://gcore.jsdelivr.net/npm/twikoo@1.6.8/dist/twikoo.all.min.js","envId":"https://xxx"}, {
+      twikoo.init(Object.assign({"js":"https://gcore.jsdelivr.net/npm/twikoo@1.6.8/dist/twikoo.all.min.js","envId":"https://my-twikoo-70q4s8qwx-cl-cs-projects-e3ecbf09.vercel.app"}, {
         el: '#twikoo_container',
         path: path,
       }));
