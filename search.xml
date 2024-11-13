@@ -47,7 +47,7 @@
       <link href="/article/7/"/>
       <url>/article/7/</url>
       
-        <content type="html"><![CDATA[]]></content>
+        <content type="html"><![CDATA[<p>起初成功安装了windows 11 + Ubuntu 20.04 双系统，然后在一次更新中Ubuntu系统的系统文件损坏一直无法加载进图形化界面，显示的是 如下问题</p><p><a href="https://www.cnblogs.com/chen-hw/p/11923082.html" title="发布于 2019-11-24 16:52">【ubuntu】开机一直“&#x2F;dev&#x2F;sda3:clean, XXX files, XXXX blocks”</a></p><p>都是说英伟达独立显卡驱动的问题，本可以尝试进入tty终端操作下，但是电脑使用各种方法也都没能进入到终端。</p><p>选择recovery mode 也是执行一会儿就卡在了莫名的地方，懒得折腾重装得了</p><p>教程都是在B站上找的，现在随便记录下几个步骤</p><div class="tag-plugin timeline"><div class="timenode" index="0"><div class="header">1/4：准备Ubuntu系统镜像</div><div class="body fs14"><p>下载Ubuntu系统镜像</p></div></div><div class="timenode" index="1"><div class="header">2/4：准备安装镜像工具</div><div class="body fs14"><p>下载安装镜像工具</p></div></div><div class="timenode" index="2"><div class="header">3/4：制作Ubuntu安装盘</div><div class="body fs14"><p>制作Ubuntu安装盘</p></div></div><div class="timenode" index="3"><div class="header">4/4：准备磁盘分区</div><div class="body fs14"><p>磁盘分区</p></div></div></div><p>由于在之前安装过Ubuntu了，现在就只需要 <code>win + x</code>  进磁盘管理图形化页面 清楚磁盘分区就行，Ubuntu的系统盘删不掉的话就去命令行删除</p><p><img src="/image/7/1731512991101.png" alt="1731512991101"></p><p><img src="/image/7/Snipaste_diskpart.png" alt="Snipaste_diskpart"></p><p><img src="/image/7/Snipaste_delete_partition.png" alt="Snipaste_delete_partition"></p><p><img src="/image/7/Snipaste_2024-11-13_23-56-40.png" alt="dad"></p>]]></content>
       
       
       
