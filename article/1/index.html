@@ -17,20 +17,23 @@
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
   <meta name="theme-color" content="#f9fafb">
   
-  <title>Burpsuite抓包实践 - 操小刀的漫游笔记</title>
+  <title>Burpsuite抓包实践 - 漫游笔记</title>
 
   
-    <meta name="description" content="实现隐藏root和绕过SSL证书校验抓包 场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到Android8.1就不再更新了, 因此Android 9.0以上的模拟器需要选择其它方案。  1. 实现隐藏root和绕过SSL证书校验抓包 安装模拟器雷电9（Android9.0兼容arm架">
+    <meta name="description" content="下载BurpSuite  实现隐藏root和绕过SSL证书校验抓包 场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到Android8.1就不再更新了, 因此Android 9.0以上的模拟器需要选择其它方案。  1. 实现隐藏root和绕过SSL证书校验抓包 安装模拟器雷电9（And">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Burpsuite抓包实践">
 <meta property="og:url" content="https://aqianer.github.io/article/1/index.html">
-<meta property="og:site_name" content="操小刀的漫游笔记">
-<meta property="og:description" content="实现隐藏root和绕过SSL证书校验抓包 场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到Android8.1就不再更新了, 因此Android 9.0以上的模拟器需要选择其它方案。  1. 实现隐藏root和绕过SSL证书校验抓包 安装模拟器雷电9（Android9.0兼容arm架">
+<meta property="og:site_name" content="漫游笔记">
+<meta property="og:description" content="下载BurpSuite  实现隐藏root和绕过SSL证书校验抓包 场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到Android8.1就不再更新了, 因此Android 9.0以上的模拟器需要选择其它方案。  1. 实现隐藏root和绕过SSL证书校验抓包 安装模拟器雷电9（And">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.freeimg.cn/i/2024/11/25/674495d9768ac.webp">
+<meta property="og:image" content="https://www.freeimg.cn/i/2024/11/25/674495d9ca310.webp">
 <meta property="article:published_time" content="2024-09-22T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-10-23T14:12:43.561Z">
+<meta property="article:modified_time" content="2024-11-25T15:25:09.516Z">
 <meta property="article:author" content="aqianer">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.freeimg.cn/i/2024/11/25/674495d9768ac.webp">
   
   
   
@@ -65,7 +68,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/article/9/"><span class="title">在Linux中安装应用记录-容器化部署</span></a><a class="item title" href="/article/7/"><span class="title">装机实践记录、电脑双系统的安装实践记录</span></a><a class="item title" href="/article/5/"><span class="title">个人网站搭建实践记录</span></a><a class="item title" href="/article/6/"><span class="title">公司业务系统分析</span></a><a class="item title" href="/article/8/"><span class="title">由配置ssh公钥引起的加密算法疑问</span></a><a class="item title" href="/article/4/"><span class="title">工作常见问题记录</span></a><a class="item title" href="/article/3/"><span class="title">Linux系统文件目录及指令录</span></a><a class="item title" href="/article/1/"><span class="title">Burpsuite抓包实践</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/article/1/"><span class="title">Burpsuite抓包实践</span></a><a class="item title" href="/article/8/"><span class="title">由配置ssh公钥引起的加密算法疑问</span></a><a class="item title" href="/article/5/"><span class="title">个人网站搭建实践记录</span></a><a class="item title" href="/article/9/"><span class="title">在Linux中安装应用记录-容器化部署</span></a><a class="item title" href="/article/7/"><span class="title">装机实践记录、电脑双系统的安装实践记录</span></a><a class="item title" href="/article/6/"><span class="title">公司业务系统分析</span></a><a class="item title" href="/article/4/"><span class="title">工作常见问题记录</span></a><a class="item title" href="/article/3/"><span class="title">Linux系统文件目录及指令录</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="/" rel="noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/gh.svg"/></a><a class="social" href="/" rel="noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/music.svg"/></a><a class="social" href="/" rel="noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/p.svg"/></a><a class="social" href="/about/#comments" rel="noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/chat.svg"/></a><a class="social" onclick="switchTheme()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" fill-rule="evenodd" d="M582.4 326.4c-140.8 0-256 115.2-256 256s115.2 256 256 256 256-115.2 256-256-115.2-256-256-256z m0 448c-70.4 0-131.2-36.8-164.8-92.8 12.8 3.2 27.2 4.8 40 4.8 121.6 0 219.2-99.2 219.2-219.2 0-17.6-1.6-35.2-6.4-52.8 60.8 32 102.4 96 102.4 169.6 1.6 104-84.8 190.4-190.4 190.4zM582.4 262.4c17.6 0 32-14.4 32-32v-128c0-17.6-14.4-32-32-32s-32 14.4-32 32v128c0 17.6 14.4 32 32 32zM262.4 582.4c0-17.6-14.4-32-32-32h-128c-17.6 0-32 14.4-32 32s14.4 32 32 32h128c17.6 0 32-14.4 32-32zM310.4 356.8c6.4 6.4 14.4 9.6 22.4 9.6 8 0 16-3.2 22.4-9.6 12.8-12.8 12.8-32 0-44.8l-91.2-91.2c-12.8-12.8-32-12.8-44.8 0-12.8 12.8-12.8 32 0 44.8l91.2 91.2zM944 220.8c-12.8-12.8-32-12.8-44.8 0l-91.2 91.2c-12.8 12.8-12.8 32 0 44.8 6.4 6.4 14.4 9.6 22.4 9.6 8 0 16-3.2 22.4-9.6l91.2-91.2c12.8-12.8 12.8-33.6 0-44.8zM310.4 808l-91.2 91.2c-12.8 12.8-12.8 32 0 44.8 6.4 6.4 14.4 9.6 22.4 9.6 8 0 16-3.2 22.4-9.6l91.2-91.2c12.8-12.8 12.8-32 0-44.8-11.2-11.2-32-11.2-44.8 0z"></path></svg></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -78,7 +81,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-09-22T16:00:00.000Z">2024-09-23</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-10-23T14:12:43.561Z">2024-10-23</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-09-22T16:00:00.000Z">2024-09-23</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-11-25T15:25:09.516Z">2024-11-25</time></span></div></div></div>
     
     <div class="bottom only-title">
       
@@ -89,7 +92,9 @@
     </div>
     
   </div>
-  </div><article class="md-text content"><h4 id="实现隐藏root和绕过SSL证书校验抓包"><a href="#实现隐藏root和绕过SSL证书校验抓包" class="headerlink" title="实现隐藏root和绕过SSL证书校验抓包"></a>实现隐藏root和绕过SSL证书校验抓包</h4><blockquote>
+  </div><article class="md-text content"><p>下载BurpSuite</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://www.freeimg.cn/i/2024/11/25/674495d9768ac.webp" alt="1732545131368.png"></p>
+<h4 id="实现隐藏root和绕过SSL证书校验抓包"><a href="#实现隐藏root和绕过SSL证书校验抓包" class="headerlink" title="实现隐藏root和绕过SSL证书校验抓包"></a>实现隐藏root和绕过SSL证书校验抓包</h4><blockquote>
 <p>场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到Android8.1就不再更新了, 因此Android 9.0以上的模拟器需要选择其它方案。</p>
 </blockquote>
 <h6 id="1-实现隐藏root和绕过SSL证书校验抓包"><a href="#1-实现隐藏root和绕过SSL证书校验抓包" class="headerlink" title="1. 实现隐藏root和绕过SSL证书校验抓包"></a>1. 实现隐藏root和绕过SSL证书校验抓包</h6><blockquote>
@@ -99,6 +104,8 @@
 <p><a target="_blank" rel="noopener" href="https://res.ldmnq.com/download/leidian9/ldinst9_9.0.24.2.exe">https://res.ldmnq.com/download/leidian9/ldinst9_9.0.24.2.exe</a></p>
 </blockquote>
 <h6 id="2-设置代理："><a href="#2-设置代理：" class="headerlink" title="2. 设置代理："></a>2. 设置代理：</h6><p>Burpsuiteproxy配置选择本机ip，端口号按如下设置</p>
+<p><a target="_blank" rel="noopener" href="https://portswigger.net/burp/documentation/desktop/mobile/config-android-device">安卓设备proxy代理</a></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://www.freeimg.cn/i/2024/11/25/674495d9ca310.webp" alt="1732547160988.png"></p>
 <h6 id="3-安装burpsuite证书在burpsuite-proxy-options导出证书，导入到模拟器中并安装"><a href="#3-安装burpsuite证书在burpsuite-proxy-options导出证书，导入到模拟器中并安装" class="headerlink" title="3. 安装burpsuite证书在burpsuite proxy options导出证书，导入到模拟器中并安装"></a>3. 安装burpsuite证书在burpsuite proxy options导出证书，导入到模拟器中并安装</h6><blockquote>
 <p>由于模拟器设置burp代理访问https，会提示证书不信任，需要装LSposed框架来安装justtrustme插件和magisk隐藏root（一般应用会检测是否系统是否root,如果是则退出应用）。</p>
 </blockquote>
@@ -148,8 +155,10 @@
       <div class="header"><span>分享文章</span></div>
       <div class="body">
         <div class="link"><input class="copy-area" readonly="true" id="copy-link" value="https://aqianer.github.io/article/1/" /></div>
-        <div class="social-wrap dis-select"><a class="social share-item wechat" onclick="util.toggle(&quot;qrcode-wechat&quot;)"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/b32ef3da1162a.svg" /></a><a class="social share-item weibo" target="_blank" rel="external nofollow noopener noreferrer" href="https://service.weibo.com/share/share.php?url=https://aqianer.github.io/article/1/&title=Burpsuite抓包实践 - 操小刀的漫游笔记&summary=实现隐藏root和绕过SSL证书校验抓包
-场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到Android8.1就不再更..."><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/80c07e4dbb303.svg" /></a><a class="social share-item email" href="mailto:?subject=Burpsuite抓包实践 - 操小刀的漫游笔记&amp;body=https://aqianer.github.io/article/1/"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/a1b00e20f425d.svg" /></a><a class="social share-item link" onclick="util.copy(&quot;copy-link&quot;, &quot;复制成功&quot;)"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/8411ed322ced6.svg" /></a></div>
+        <div class="social-wrap dis-select"><a class="social share-item wechat" onclick="util.toggle(&quot;qrcode-wechat&quot;)"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/b32ef3da1162a.svg" /></a><a class="social share-item weibo" target="_blank" rel="external nofollow noopener noreferrer" href="https://service.weibo.com/share/share.php?url=https://aqianer.github.io/article/1/&title=Burpsuite抓包实践 - 漫游笔记&summary=下载BurpSuite
+
+实现隐藏root和绕过SSL证书校验抓包
+场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到A..."><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/80c07e4dbb303.svg" /></a><a class="social share-item email" href="mailto:?subject=Burpsuite抓包实践 - 漫游笔记&amp;body=https://aqianer.github.io/article/1/"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/a1b00e20f425d.svg" /></a><a class="social share-item link" onclick="util.copy(&quot;copy-link&quot;, &quot;复制成功&quot;)"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/8411ed322ced6.svg" /></a></div>
         
         <div class="qrcode" id="qrcode-wechat" style="opacity:0;height:0">
           <img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=https://aqianer.github.io/article/1/"/>
