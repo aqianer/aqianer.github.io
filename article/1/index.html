@@ -20,12 +20,12 @@
   <title>Burpsuite抓包实践 - 漫游笔记</title>
 
   
-    <meta name="description" content="下载BurpSuite  实现隐藏root和绕过SSL证书校验抓包 场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到Android8.1就不再更新了, 因此Android 9.0以上的模拟器需要选择其它方案。  1. 实现隐藏root和绕过SSL证书校验抓包 安装模拟器雷电9（And">
+    <meta name="description" content="下载BurpSuite     实现隐藏root和绕过SSL证书校验抓包 场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到Android8.1就不再更新了, 因此Android 9.0以上的模拟器需要选择其它方案。  1. 实现隐藏root和绕过SSL证书校验抓包 安装模拟器雷电9">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Burpsuite抓包实践">
 <meta property="og:url" content="https://aqianer.github.io/article/1/index.html">
 <meta property="og:site_name" content="漫游笔记">
-<meta property="og:description" content="下载BurpSuite  实现隐藏root和绕过SSL证书校验抓包 场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到Android8.1就不再更新了, 因此Android 9.0以上的模拟器需要选择其它方案。  1. 实现隐藏root和绕过SSL证书校验抓包 安装模拟器雷电9（And">
+<meta property="og:description" content="下载BurpSuite     实现隐藏root和绕过SSL证书校验抓包 场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到Android8.1就不再更新了, 因此Android 9.0以上的模拟器需要选择其它方案。  1. 实现隐藏root和绕过SSL证书校验抓包 安装模拟器雷电9">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://www.freeimg.cn/i/2024/11/25/674495d9768ac.webp">
 <meta property="og:image" content="https://www.freeimg.cn/i/2024/11/25/674495d9ca310.webp">
@@ -33,7 +33,7 @@
 <meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/8d05a3cb35c0a3c8840d26551846e9c0.jpeg">
 <meta property="og:image" content="https://www.freeimg.cn/i/2024/12/16/67601115a36f1.webp">
 <meta property="article:published_time" content="2024-12-16T10:52:40.000Z">
-<meta property="article:modified_time" content="2024-12-16T15:50:01.775Z">
+<meta property="article:modified_time" content="2024-12-16T15:57:28.556Z">
 <meta property="article:author" content="aqianer">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://www.freeimg.cn/i/2024/11/25/674495d9768ac.webp">
@@ -84,7 +84,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-16T10:52:40.000Z">2024-12-16</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-16T15:50:01.775Z">2024-12-16</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-16T10:52:40.000Z">2024-12-16</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-16T15:57:28.556Z">2024-12-16</time></span></div></div></div>
     
     <div class="bottom only-title">
       
@@ -95,7 +95,11 @@
     </div>
     
   </div>
-  </div><article class="md-text content"><p>下载BurpSuite</p>
+  </div><article class="md-text content"><meta name="referrer" content="no-referrer" />
+下载BurpSuite
+
+
+
 <p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://www.freeimg.cn/i/2024/11/25/674495d9768ac.webp" alt="1732545131368.png"></p>
 <h4 id="实现隐藏root和绕过SSL证书校验抓包"><a href="#实现隐藏root和绕过SSL证书校验抓包" class="headerlink" title="实现隐藏root和绕过SSL证书校验抓包"></a>实现隐藏root和绕过SSL证书校验抓包</h4><blockquote>
 <p>场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到Android8.1就不再更新了, 因此Android 9.0以上的模拟器需要选择其它方案。</p>
@@ -161,10 +165,14 @@
       <div class="header"><span>分享文章</span></div>
       <div class="body">
         <div class="link"><input class="copy-area" readonly="true" id="copy-link" value="https://aqianer.github.io/article/1/" /></div>
-        <div class="social-wrap dis-select"><a class="social share-item wechat" onclick="util.toggle(&quot;qrcode-wechat&quot;)"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/b32ef3da1162a.svg" /></a><a class="social share-item weibo" target="_blank" rel="external nofollow noopener noreferrer" href="https://service.weibo.com/share/share.php?url=https://aqianer.github.io/article/1/&title=Burpsuite抓包实践 - 漫游笔记&summary=下载BurpSuite
+        <div class="social-wrap dis-select"><a class="social share-item wechat" onclick="util.toggle(&quot;qrcode-wechat&quot;)"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/b32ef3da1162a.svg" /></a><a class="social share-item weibo" target="_blank" rel="external nofollow noopener noreferrer" href="https://service.weibo.com/share/share.php?url=https://aqianer.github.io/article/1/&title=Burpsuite抓包实践 - 漫游笔记&summary=
+下载BurpSuite
+
+
+
 
 实现隐藏root和绕过SSL证书校验抓包
-场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只支持到A..."><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/80c07e4dbb303.svg" /></a><a class="social share-item email" href="mailto:?subject=Burpsuite抓包实践 - 漫游笔记&amp;body=https://aqianer.github.io/article/1/"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/a1b00e20f425d.svg" /></a><a class="social share-item link" onclick="util.copy(&quot;copy-link&quot;, &quot;复制成功&quot;)"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/8411ed322ced6.svg" /></a></div>
+场景：目前安全测试经常遇到移动APP只支持Android9.0以上ARM架构的模拟器安装、且APP检测root，验证SSL证书的场景。之前的Xposed框架只..."><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/80c07e4dbb303.svg" /></a><a class="social share-item email" href="mailto:?subject=Burpsuite抓包实践 - 漫游笔记&amp;body=https://aqianer.github.io/article/1/"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/a1b00e20f425d.svg" /></a><a class="social share-item link" onclick="util.copy(&quot;copy-link&quot;, &quot;复制成功&quot;)"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/8411ed322ced6.svg" /></a></div>
         
         <div class="qrcode" id="qrcode-wechat" style="opacity:0;height:0">
           <img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=https://aqianer.github.io/article/1/"/>
