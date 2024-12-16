@@ -17,24 +17,27 @@
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
   <meta name="theme-color" content="#f9fafb">
   
-  <title>垃圾佬回收空间 - 漫游笔记</title>
+  <title>Jenkins+Docker+GitHub实现持续集成的实践记录 - 漫游笔记</title>
 
   
-    <meta name="description" content="目标管理 2024目标管理 2025               O1                 2024年的小目标：能活着进入2025                                  正常         90%                                                        KR1">
-<meta property="og:type" content="website">
-<meta property="og:title" content="垃圾佬回收空间">
-<meta property="og:url" content="https://aqianer.github.io/explore/index.html">
+    <meta name="description" content="安装git我的Linux发行版是Ubuntu，所以就用的apt （Advanced Packaging Tool） 1sudo apt install -y git 然后在home目录下新建用户&#x2F;git 12345# 然后在home目录下新建用户&#x2F;gitsudo useradd -d  &#x2F;home&#x2F;git -m git# 切换到超级管理员(su - root 可以简化为 su)，修改gi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Jenkins+Docker+GitHub实现持续集成的实践记录">
+<meta property="og:url" content="https://aqianer.github.io/article/10/index.html">
 <meta property="og:site_name" content="漫游笔记">
-<meta property="og:description" content="目标管理 2024目标管理 2025               O1                 2024年的小目标：能活着进入2025                                  正常         90%                                                        KR1">
+<meta property="og:description" content="安装git我的Linux发行版是Ubuntu，所以就用的apt （Advanced Packaging Tool） 1sudo apt install -y git 然后在home目录下新建用户&#x2F;git 12345# 然后在home目录下新建用户&#x2F;gitsudo useradd -d  &#x2F;home&#x2F;git -m git# 切换到超级管理员(su - root 可以简化为 su)，修改gi">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://gcore.jsdelivr.net/gh/cdn-x/emoji/tieba/%E6%BB%91%E7%A8%BD.png">
-<meta property="og:image" content="https://gcore.jsdelivr.net/gh/norevi/waline-blobcatemojis@1.0/blobs/ablobcatrainbow.png">
-<meta property="og:image" content="https://gcore.jsdelivr.net/gh/norevi/waline-blobcatemojis@1.0/blobs/ablobcatattentionreverse.png">
-<meta property="article:published_time" content="2024-11-25T15:57:19.748Z">
-<meta property="article:modified_time" content="2024-11-20T15:28:06.000Z">
+<meta property="og:image" content="https://aqianer.github.io/image/10/1732721474990.png">
+<meta property="og:image" content="https://aqianer.github.io/image/10/1732723413771.png">
+<meta property="og:image" content="https://aqianer.github.io/image/10/1732723748229.png">
+<meta property="og:image" content="https://aqianer.github.io/image.png">
+<meta property="og:image" content="https://aqianer.github.io/image-1.png">
+<meta property="og:image" content="https://aqianer.github.io/image-2.png">
+<meta property="article:published_time" content="2024-11-27T15:19:25.506Z">
+<meta property="article:modified_time" content="2024-12-15T09:20:46.683Z">
 <meta property="article:author" content="aqianer">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://gcore.jsdelivr.net/gh/cdn-x/emoji/tieba/%E6%BB%91%E7%A8%BD.png">
+<meta name="twitter:image" content="https://aqianer.github.io/image/10/1732721474990.png">
   
   
   
@@ -55,7 +58,7 @@
 </head>
 <body><div class="sitebg"><div class="siteblur"></div></div>
 
-<div class="l_body s:aa content tech" id="start" layout="page" ><aside class="l_left"><div class="leftbar-container">
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
 
 
 <header class="header"><div class="logo-wrap"><a class="avatar" href="/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/assets/personal.ico" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">Aqianer</div><div class="sub normal cap">自信人生二百年</div><div class="sub hover cap" style="opacity:0">  会当水击三千里</div></a></div></header>
@@ -67,6 +70,8 @@
 <nav class="menu dis-select"><a class="nav-item active" title="博客" href="/" style="color:#1BCDFC"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M5.879 2.879C5 3.757 5 5.172 5 8v8c0 2.828 0 4.243.879 5.121C6.757 22 8.172 22 11 22h2c2.828 0 4.243 0 5.121-.879C19 20.243 19 18.828 19 16V8c0-2.828 0-4.243-.879-5.121C17.243 2 15.828 2 13 2h-2c-2.828 0-4.243 0-5.121.879M8.25 17a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75M9 12.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zM8.25 9A.75.75 0 0 1 9 8.25h6a.75.75 0 0 1 0 1.5H9A.75.75 0 0 1 8.25 9" clip-rule="evenodd"/><path fill="currentColor" d="M5.235 4.058C5 4.941 5 6.177 5 8v8c0 1.823 0 3.058.235 3.942L5 19.924c-.975-.096-1.631-.313-2.121-.803C2 18.243 2 16.828 2 14v-4c0-2.829 0-4.243.879-5.121c.49-.49 1.146-.707 2.121-.803zm13.53 15.884C19 19.058 19 17.822 19 16V8c0-1.823 0-3.059-.235-3.942l.235.018c.975.096 1.631.313 2.121.803C22 5.757 22 7.17 22 9.999v4c0 2.83 0 4.243-.879 5.122c-.49.49-1.146.707-2.121.803z" opacity=".5"/></svg></a><a class="nav-item" title="文档" href="/wiki/" style="color:#3DC550"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M14.25 4.48v3.057c0 .111 0 .27.02.406a.936.936 0 0 0 .445.683a.96.96 0 0 0 .783.072c.13-.04.272-.108.378-.159L17 8.005l1.124.534c.106.05.248.119.378.16a.958.958 0 0 0 .783-.073a.936.936 0 0 0 .444-.683c.021-.136.021-.295.021-.406V3.031c.113-.005.224-.01.332-.013C21.154 2.98 22 3.86 22 4.933v11.21c0 1.112-.906 2.01-2.015 2.08c-.97.06-2.108.179-2.985.41c-1.082.286-1.99 1.068-3.373 1.436c-.626.167-1.324.257-1.627.323V5.174c.32-.079 1.382-.203 1.674-.371c.184-.107.377-.216.576-.323m5.478 8.338a.75.75 0 0 1-.546.91l-4 1a.75.75 0 0 1-.364-1.456l4-1a.75.75 0 0 1 .91.546" clip-rule="evenodd"/><path fill="currentColor" d="M18.25 3.151c-.62.073-1.23.18-1.75.336a8.2 8.2 0 0 0-.75.27v3.182l.75-.356l.008-.005a1.13 1.13 0 0 1 .492-.13c.047 0 .094.004.138.01c.175.029.315.1.354.12l.009.005l.749.356V3.647z"/><path fill="currentColor" d="M12 5.214c-.334-.064-1.057-.161-1.718-.339C8.938 4.515 8.05 3.765 7 3.487c-.887-.234-2.041-.352-3.018-.412C2.886 3.007 2 3.9 2 4.998v11.146c0 1.11.906 2.01 2.015 2.079c.97.06 2.108.179 2.985.41c.486.129 1.216.431 1.873.726c1.005.451 2.052.797 3.127 1.034z" opacity=".5"/><path fill="currentColor" d="M4.273 12.818a.75.75 0 0 1 .91-.545l4 1a.75.75 0 1 1-.365 1.455l-4-1a.75.75 0 0 1-.545-.91m.909-4.545a.75.75 0 1 0-.364 1.455l4 1a.75.75 0 0 0 .364-1.455z"/></svg></a><a class="nav-item" title="探索" href="/explore/" style="color:#FA6400"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M20 12a8 8 0 1 1-16 0a8 8 0 0 1 16 0" opacity=".5"/><path fill="currentColor" d="M17.712 5.453c1.047-.193 2.006-.259 2.797-.152c.77.103 1.536.393 1.956 1.064c.446.714.312 1.542-.012 2.258c-.33.728-.918 1.499-1.672 2.268c-1.516 1.547-3.836 3.226-6.597 4.697c-2.763 1.472-5.495 2.484-7.694 2.92c-1.095.217-2.098.299-2.923.201c-.8-.095-1.6-.383-2.032-1.075c-.47-.752-.296-1.63.07-2.379c.375-.768 1.032-1.586 1.872-2.403L4 12.416c0 .219.083.71.168 1.146c.045.23.09.444.123.596c-.652.666-1.098 1.263-1.339 1.756c-.277.567-.208.825-.145.925c.072.116.305.305.937.38c.609.073 1.44.018 2.455-.183c2.02-.4 4.613-1.351 7.28-2.772c2.667-1.42 4.85-3.015 6.23-4.423c.694-.707 1.15-1.334 1.377-1.836c.233-.515.167-.75.107-.844c-.07-.112-.289-.294-.883-.374c-.542-.072-1.272-.041-2.163.112L16.87 5.656c.338-.101.658-.17.842-.203"/></svg></a><a class="nav-item" title="社交" href="/friends/" style="color:#F44336"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="m13.629 20.472l-.542.916c-.483.816-1.69.816-2.174 0l-.542-.916c-.42-.71-.63-1.066-.968-1.262c-.338-.197-.763-.204-1.613-.219c-1.256-.021-2.043-.098-2.703-.372a5 5 0 0 1-2.706-2.706C2 14.995 2 13.83 2 11.5v-1c0-3.273 0-4.91.737-6.112a5 5 0 0 1 1.65-1.651C5.59 2 7.228 2 10.5 2h3c3.273 0 4.91 0 6.113.737a5 5 0 0 1 1.65 1.65C22 5.59 22 7.228 22 10.5v1c0 2.33 0 3.495-.38 4.413a5 5 0 0 1-2.707 2.706c-.66.274-1.447.35-2.703.372c-.85.015-1.275.022-1.613.219c-.338.196-.548.551-.968 1.262" opacity=".5"/><path fill="currentColor" d="M10.99 14.308c-1.327-.978-3.49-2.84-3.49-4.593c0-2.677 2.475-3.677 4.5-1.609c2.025-2.068 4.5-1.068 4.5 1.609c0 1.752-2.163 3.615-3.49 4.593c-.454.335-.681.502-1.01.502c-.329 0-.556-.167-1.01-.502"/></svg></a></nav>
 </div>
 <div class="widgets">
+
+
 <widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/article/5/"><span class="title">个人网站搭建实践记录</span></a><a class="item title" href="/article/1/"><span class="title">Burpsuite抓包实践</span></a><a class="item title" href="/article/11/"><span class="title">常见问题记录</span></a><a class="item title" href="/article/10/"><span class="title">Jenkins+Docker+GitHub实现持续集成的实践记录</span></a><a class="item title" href="/article/12/"><span class="title">鸿蒙学习记录</span></a><a class="item title" href="/article/14/"><span class="title">算法刷题记录</span></a><a class="item title" href="/article/13/"><span class="title">Java多线程回顾记录</span></a><a class="item title" href="/article/8/"><span class="title">由配置ssh公钥引起的加密算法疑问</span></a><a class="item title" href="/article/9/"><span class="title">在Linux中安装应用记录-容器化部署</span></a><a class="item title" href="/article/7/"><span class="title">装机实践记录、电脑双系统的安装实践记录</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="/" rel="noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/gh.svg"/></a><a class="social" href="/" rel="noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/music.svg"/></a><a class="social" href="/" rel="noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/p.svg"/></a><a class="social" href="/about/#comments" rel="noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/chat.svg"/></a><a class="social" onclick="switchTheme()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" fill-rule="evenodd" d="M582.4 326.4c-140.8 0-256 115.2-256 256s115.2 256 256 256 256-115.2 256-256-115.2-256-256-256z m0 448c-70.4 0-131.2-36.8-164.8-92.8 12.8 3.2 27.2 4.8 40 4.8 121.6 0 219.2-99.2 219.2-219.2 0-17.6-1.6-35.2-6.4-52.8 60.8 32 102.4 96 102.4 169.6 1.6 104-84.8 190.4-190.4 190.4zM582.4 262.4c17.6 0 32-14.4 32-32v-128c0-17.6-14.4-32-32-32s-32 14.4-32 32v128c0 17.6 14.4 32 32 32zM262.4 582.4c0-17.6-14.4-32-32-32h-128c-17.6 0-32 14.4-32 32s14.4 32 32 32h128c17.6 0 32-14.4 32-32zM310.4 356.8c6.4 6.4 14.4 9.6 22.4 9.6 8 0 16-3.2 22.4-9.6 12.8-12.8 12.8-32 0-44.8l-91.2-91.2c-12.8-12.8-32-12.8-44.8 0-12.8 12.8-12.8 32 0 44.8l91.2 91.2zM944 220.8c-12.8-12.8-32-12.8-44.8 0l-91.2 91.2c-12.8 12.8-12.8 32 0 44.8 6.4 6.4 14.4 9.6 22.4 9.6 8 0 16-3.2 22.4-9.6l91.2-91.2c12.8-12.8 12.8-33.6 0-44.8zM310.4 808l-91.2 91.2c-12.8 12.8-12.8 32 0 44.8 6.4 6.4 14.4 9.6 22.4 9.6 8 0 16-3.2 22.4-9.6l91.2-91.2c12.8-12.8 12.8-32 0-44.8-11.2-11.2-32-11.2-44.8 0z"></path></svg></a></div></footer>
@@ -79,123 +84,75 @@
 <div class="article banner top">
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
-
-  <span class="sep"></span>
-  <a class="cap breadcrumb" href="/explore/index.html">垃圾佬回收空间</a>
-  </div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-11-25T15:57:19.748Z">2024-11-25</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-11-20T15:28:06.000Z">2024-11-20</time></span></div></div></div>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-11-27T15:19:25.506Z">2024-11-27</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-15T09:20:46.683Z">2024-12-15</time></span></div></div></div>
     
     <div class="bottom only-title">
       
       <div class="text-area">
-        <h1 class="text title"><span>垃圾佬回收空间</span></h1>
+        <h1 class="text title"><span>Jenkins+Docker+GitHub实现持续集成的实践记录</span></h1>
         
       </div>
     </div>
     
   </div>
-  </div><article class="md-text content"><div class="tag-plugin tabs" align="left"id="tab_2"><div class="nav-tabs"><div class="tab active"><a href="#tab_2-1">目标管理 2024</a></div><div class="tab"><a href="#tab_2-2">目标管理 2025</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_2-1"><div class="tag-plugin colorful okr" >
-  <div class="okr-item o" id="okr-o1">
-    <div class="okr-left">
-      <span class="title">O1</span>
-    </div>
-    <div class="okr-center">
-      <span class="title">2024年的小目标：能活着进入2025 <span class="tag-plugin emoji"><img no-lazy="" class="inline lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/emoji/tieba/滑稽.png"/></span></span>
-      <div class="note"></div>
-    </div>
-    <div class="okr-right colorful" color="blue">
-      <div class="labels">
-        <span class="status label">正常</span>
-        <span class="status percent">90%</span>
-      </div>
-      <div class="progress">
-        <div class="fill" style="width:90%;"></div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="okr-item kr" id="okr-kr1">
-    <div class="okr-left">
-      <span class="title">KR1</span>
-    </div>
-    <div class="okr-center">
-      <span class="title"><span class="tag-plugin emoji"><img no-lazy="" class="inline lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/norevi/waline-blobcatemojis@1.0/blobs/ablobcatrainbow.png"/></span><span class="tag-plugin emoji"><img no-lazy="" class="inline lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/norevi/waline-blobcatemojis@1.0/blobs/ablobcatattentionreverse.png"/></span></span>
-      <div class="note"><ul><li>多记录，多输出</li><li>后端项目积累</li><li>项目部署相关</li><li>鸿蒙应用</li></ul></div>
-    </div>
-    <div class="okr-right colorful" color="orange">
-      <div class="labels">
-        <span class="status label">延期</span>
-        <span class="status percent">30%</span>
-      </div>
-      <div class="progress">
-        <div class="fill" style="width:30%;"></div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="okr-item kr" id="okr-kr2">
-    <div class="okr-left">
-      <span class="title">KR2</span>
-    </div>
-    <div class="okr-center">
-      <span class="title">技术积累</span>
-      <div class="note"><div class="tag-plugin tabs" align="left"id="tab_1"><div class="nav-tabs"><div class="tab active"><a href="#tab_1-1">后端项目积累</a></div><div class="tab"><a href="#tab_1-2">项目部署相关</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_1-1"><ul><li>mianshimalou 项目</li><li>微信小程序开发</li><li>基于python的去水印</li></ul></div><div class="tab-pane" id="tab_1-2"><ul><li>云端部署实践</li><li>通过 Huawei Cloudarts实现CI</li></ul></div></div></div></div>
-    </div>
-    <div class="okr-right colorful" color="orange">
-      <div class="labels">
-        <span class="status label">延期</span>
-        <span class="status percent">30%</span>
-      </div>
-      <div class="progress">
-        <div class="fill" style="width:30%;"></div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="okr-item kr" id="okr-kr3">
-    <div class="okr-left">
-      <span class="title">KR3</span>
-    </div>
-    <div class="okr-center">
-      <span class="title"><p>完成前置准备工作（如果你知道答案，请在留言区帮帮我！🥹）</p></span>
-      <div class="note"><div class="tag-plugin colorful checkbox" ><input type="checkbox"/><span>在咸水和海滩之间找一亩地</span></div><div class="tag-plugin colorful checkbox" ><input type="checkbox"/><span>求出圆周率后15位</span></div><div class="tag-plugin colorful checkbox" ><input type="checkbox"/><span>找出宇宙的终极逻辑</span></div><div class="tag-plugin colorful checkbox" ><input type="checkbox"/><span>去地狱里走两步</span></div></div>
-    </div>
-    <div class="okr-right colorful" color="red">
-      <div class="labels">
-        <span class="status label">未完成</span>
-        <span class="status percent">-12%</span>
-      </div>
-      <div class="progress">
-        <div class="fill" style="width:-12%;"></div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="okr-item kr" id="okr-kr-4">
-    <div class="okr-left">
-      <span class="title">KR-4</span>
-    </div>
-    <div class="okr-center">
-      <span class="title"><p>开发、测试和发布</p></span>
-      <div class="note"></div>
-    </div>
-    <div class="okr-right colorful" color="yellow">
-      <div class="labels">
-        <span class="status label">风险</span>
-        <span class="status percent">0%</span>
-      </div>
-      <div class="progress">
-        <div class="fill" style="width:0%;"></div>
-      </div>
-    </div>
-  </div>
-  </div></div><div class="tab-pane" id="tab_2-2"><p>定就定，不定就不定，先待定</p>
-<p>不带摘要的样式：</p>
-<div class="tag-plugin link dis-select"><a class="link-card plain" title="" href="https://xaoxuu.com/blog/20221029/" target="_blank" rel="external nofollow noopener noreferrer" cardlink autofill="title,icon"><div class="left"><span class="title">https://xaoxuu.com/blog/20221029/</span><span class="cap link footnote">https://xaoxuu.com/blog/20221029/</span></div><div class="right"><div class="lazy img" data-bg="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/link/8f277b4ee0ecd.svg"></div></div></a></div>
-<p>带摘要的样式：</p>
-<div class="tag-plugin link dis-select"><a class="link-card rich" title="" href="https://xaoxuu.com/blog/20221029/" target="_blank" rel="external nofollow noopener noreferrer" cardlink autofill="title,icon,desc"><div class="top"><div class="lazy img" data-bg="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/link/8f277b4ee0ecd.svg"></div><span class="cap link footnote">https://xaoxuu.com/blog/20221029/</span></div><div class="bottom"><span class="title">https://xaoxuu.com/blog/20221029/</span><span class="cap desc footnote"></span></div></a></div></div></div></div>
+  </div><article class="md-text content"><h3 id="安装git"><a href="#安装git" class="headerlink" title="安装git"></a>安装git</h3><p>我的Linux发行版是Ubuntu，所以就用的apt （Advanced Packaging Tool）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install -y git</span><br></pre></td></tr></table></figure>
+<p>然后在home目录下新建用户&#x2F;git</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">然后在home目录下新建用户/git</span></span><br><span class="line">sudo useradd -d  /home/git -m git</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">切换到超级管理员(su - root 可以简化为 su)，修改git密码</span></span><br><span class="line">su</span><br></pre></td></tr></table></figure>
+<p>直接上截图吧<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/image/10/1732721474990.png" alt="1732721474990"></p>
+<p>由于在新建用户的时候，少设置了一些选项比如登陆git用户的shell，很多快捷指令不支持用起来很难受，就修改下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo usermod -s /bin/bash git</span><br></pre></td></tr></table></figure>
 
+<h3 id="安装docker-（略）"><a href="#安装docker-（略）" class="headerlink" title="安装docker （略）"></a>安装docker （略）</h3><h3 id="安装-Docker-Compose："><a href="#安装-Docker-Compose：" class="headerlink" title="安装 Docker Compose："></a>安装 Docker Compose：</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install -y docker-compose</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="安装-Java-和-Maven-环境"><a href="#安装-Java-和-Maven-环境" class="headerlink" title="安装 Java 和 Maven 环境"></a>安装 Java 和 Maven 环境</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install openjdk-8-jdk</span><br><span class="line"></span><br><span class="line">sudo apt install maven</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="授权-Docker-免密登陆Git仓库："><a href="#授权-Docker-免密登陆Git仓库：" class="headerlink" title="授权 Docker 免密登陆Git仓库："></a>授权 Docker 免密登陆Git仓库：</h3><h4 id="为本机（Ubuntu）配置SSH"><a href="#为本机（Ubuntu）配置SSH" class="headerlink" title="为本机（Ubuntu）配置SSH"></a>为本机（Ubuntu）配置SSH</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ssh-agent</span><br><span class="line">eval $(ssh-agent -s)</span><br><span class="line">ssh-keygen -o -t rsa -b 4096 -C &quot;&#123;username&#125;&quot;</span><br><span class="line">ssh-add ~/.ssh/id_rsa</span><br></pre></td></tr></table></figure>
+<p>进入&#x2F;root&#x2F;.ssh目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa -b 4096</span><br></pre></td></tr></table></figure>
+<p>-t 表示加密算法，-b为密钥长度<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/image/10/1732723413771.png" alt="1732723413771"><br>公钥添加到仓库SSH设置中保存<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/image/10/1732723748229.png" alt="1732723748229"></p>
+<h3 id="安装-Jenkins"><a href="#安装-Jenkins" class="headerlink" title="安装 Jenkins"></a>安装 Jenkins</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo docker pull jenkins/jenkins:lts</span><br><span class="line"></span><br><span class="line">sudo docker run -d -p 8080:8080 --name jenkins -v /var/run/docker.sock:/var/run/docker.sock jenkins/jenkins:lts</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/image.png" alt="alt text"><br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/image-1.png" alt="alt text"></p>
+<p>选择自动安装插件，<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/image-2.png" alt="alt text"><br>java\maven\jenkins都放进容器中</p>
+<p><a target="_blank" rel="noopener" href="http://obs.aqianer.top/blogimg/image/10/1732721474990.png">http://obs.aqianer.top/blogimg/image/10/1732721474990.png</a></p>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    
+    <section id="share">
+      <div class="header"><span>分享文章</span></div>
+      <div class="body">
+        <div class="link"><input class="copy-area" readonly="true" id="copy-link" value="https://aqianer.github.io/article/10/" /></div>
+        <div class="social-wrap dis-select"><a class="social share-item wechat" onclick="util.toggle(&quot;qrcode-wechat&quot;)"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/b32ef3da1162a.svg" /></a><a class="social share-item weibo" target="_blank" rel="external nofollow noopener noreferrer" href="https://service.weibo.com/share/share.php?url=https://aqianer.github.io/article/10/&title=Jenkins+Docker+GitHub实现持续集成的实践记录 - 漫游笔记&summary=安装git我的Linux发行版是Ubuntu，所以就用的apt （Advanced Packaging Tool）
+1sudo apt install -y git
+然后在home目录下新建用户&#x2F;git
+12345# 然后在..."><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/80c07e4dbb303.svg" /></a><a class="social share-item email" href="mailto:?subject=Jenkins+Docker+GitHub实现持续集成的实践记录 - 漫游笔记&amp;body=https://aqianer.github.io/article/10/"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/a1b00e20f425d.svg" /></a><a class="social share-item link" onclick="util.copy(&quot;copy-link&quot;, &quot;复制成功&quot;)"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/8411ed322ced6.svg" /></a></div>
+        
+        <div class="qrcode" id="qrcode-wechat" style="opacity:0;height:0">
+          <img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=https://aqianer.github.io/article/10/"/>
+        </div>
+        
+      </div>
+    </section>
+    </div>
 </article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/article/1/">Burpsuite抓包实践</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/article/9/">在Linux中安装应用记录-容器化部署</a></div></section></div>
+
+<div class="related-wrap" id="related-posts">
+    <section class='header'>
+      <div class='title cap theme'>您可能感兴趣的文章</div>
+    </section>
+    <section class='body'>
+    <div class="related-posts"><a class="item" href="\article\1\" title="Burpsuite抓包实践"><span class="title">Burpsuite抓包实践</span></a></div></section></div>
+
 
   <div class="related-wrap md-text" id="comments">
     <section class='header cmt-title cap theme'>
@@ -218,7 +175,12 @@
 </div></footer>
 <div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
 <div class="widgets">
-<widget class="widget-wrapper timeline"><div class="widget-header dis-select"><span class="name">近期动态</span></div><div class="widget-body fs14"><div class="tag-plugin timeline ds-memos" api="https://memos.xaox.cc/api/v1/memo?creatorId=14&limit=5" hide="user,footer"></div></div></widget>
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85git"><span class="toc-text">安装git</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85docker-%EF%BC%88%E7%95%A5%EF%BC%89"><span class="toc-text">安装docker （略）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85-Docker-Compose%EF%BC%9A"><span class="toc-text">安装 Docker Compose：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85-Java-%E5%92%8C-Maven-%E7%8E%AF%E5%A2%83"><span class="toc-text">安装 Java 和 Maven 环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%88%E6%9D%83-Docker-%E5%85%8D%E5%AF%86%E7%99%BB%E9%99%86Git%E4%BB%93%E5%BA%93%EF%BC%9A"><span class="toc-text">授权 Docker 免密登陆Git仓库：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E6%9C%AC%E6%9C%BA%EF%BC%88Ubuntu%EF%BC%89%E9%85%8D%E7%BD%AESSH"><span class="toc-text">为本机（Ubuntu）配置SSH</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85-Jenkins"><span class="toc-text">安装 Jenkins</span></a></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10.46 1.25h3.08c1.603 0 2.86 0 3.864.095c1.023.098 1.861.3 2.6.752a5.75 5.75 0 0 1 1.899 1.899c.452.738.654 1.577.752 2.6c.095 1.004.095 2.261.095 3.865v1.067c0 1.141 0 2.036-.05 2.759c-.05.735-.153 1.347-.388 1.913a5.75 5.75 0 0 1-3.112 3.112c-.805.334-1.721.408-2.977.43a10.81 10.81 0 0 0-.929.036c-.198.022-.275.054-.32.08c-.047.028-.112.078-.224.232c-.121.166-.258.396-.476.764l-.542.916c-.773 1.307-2.69 1.307-3.464 0l-.542-.916a10.605 10.605 0 0 0-.476-.764c-.112-.154-.177-.204-.224-.232c-.045-.026-.122-.058-.32-.08c-.212-.023-.49-.03-.93-.037c-1.255-.021-2.171-.095-2.976-.429A5.75 5.75 0 0 1 1.688 16.2c-.235-.566-.338-1.178-.389-1.913c-.049-.723-.049-1.618-.049-2.76v-1.066c0-1.604 0-2.86.095-3.865c.098-1.023.3-1.862.752-2.6a5.75 5.75 0 0 1 1.899-1.899c.738-.452 1.577-.654 2.6-.752C7.6 1.25 8.857 1.25 10.461 1.25M6.739 2.839c-.914.087-1.495.253-1.959.537A4.25 4.25 0 0 0 3.376 4.78c-.284.464-.45 1.045-.537 1.96c-.088.924-.089 2.11-.089 3.761v1c0 1.175 0 2.019.046 2.685c.045.659.131 1.089.278 1.441a4.25 4.25 0 0 0 2.3 2.3c.515.214 1.173.294 2.429.316h.031c.398.007.747.013 1.037.045c.311.035.616.104.909.274c.29.17.5.395.682.645c.169.232.342.525.538.856l.559.944a.52.52 0 0 0 .882 0l.559-.944c.196-.331.37-.624.538-.856c.182-.25.392-.476.682-.645c.293-.17.598-.24.909-.274c.29-.032.639-.038 1.037-.045h.032c1.255-.022 1.913-.102 2.428-.316a4.25 4.25 0 0 0 2.3-2.3c.147-.352.233-.782.278-1.441c.046-.666.046-1.51.046-2.685v-1c0-1.651 0-2.837-.089-3.762c-.087-.914-.253-1.495-.537-1.959a4.25 4.25 0 0 0-1.403-1.403c-.464-.284-1.045-.45-1.96-.537c-.924-.088-2.11-.089-3.761-.089h-3c-1.651 0-2.837 0-3.762.089" clip-rule="evenodd"/><path fill="currentColor" d="M9 11a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><span>参与讨论</span></a></div></widget>
 </div></aside><div class='float-panel blur'>
   <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
