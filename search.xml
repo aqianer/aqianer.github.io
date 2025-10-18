@@ -108,6 +108,76 @@
     
     
     <entry>
+      <title>Python 包管理与虚拟环境使用指南</title>
+      <link href="/article/17/"/>
+      <url>/article/17/</url>
+      
+        <content type="html"><![CDATA[<h1 id="一、Python-包管理常用命令清单"><a href="#一、Python-包管理常用命令清单" class="headerlink" title="一、Python 包管理常用命令清单"></a>一、Python 包管理常用命令清单</h1><table><thead><tr><th>操作目的</th><th>命令示例</th><th>说明</th></tr></thead><tbody><tr><td>安装指定包（默认最新版）</td><td><code>pip install requests</code></td><td>安装 <code>requests</code> 包，全局环境需管理员权限（Windows加<code>-m</code>，如<code>python -m pip</code>）</td></tr><tr><td>安装指定版本包</td><td><code>pip install pandas==2.2.2</code></td><td>安装 <code>pandas</code> 的 2.2.2 版本，避免版本不兼容问题</td></tr><tr><td>卸载指定包</td><td><code>pip uninstall requests</code></td><td>卸载 <code>requests</code> 包，需输入 <code>Y</code> 确认；加 <code>-y</code> 可跳过确认（<code>pip uninstall -y requests</code>）</td></tr><tr><td>卸载多个包</td><td><code>pip uninstall -y requests pandas numpy</code></td><td>一次性卸载多个包，用空格分隔包名，<code>-y</code> 批量确认</td></tr><tr><td>查看已安装的所有包</td><td><code>pip list</code></td><td>显示所有包名及版本，清晰查看环境中已装包</td></tr><tr><td>查看单个包的详情</td><td><code>pip show streamlit</code></td><td>查看 <code>streamlit</code> 的安装路径、依赖包、版本等详细信息</td></tr><tr><td>导出当前环境依赖</td><td><code>pip freeze &gt; requirements.txt</code></td><td>将所有已装包及版本写入 <code>requirements.txt</code>，用于项目共享</td></tr><tr><td>从依赖文件安装包</td><td><code>pip install -r requirements.txt</code></td><td>一键安装 <code>requirements.txt</code> 中列出的所有包，快速复现环境</td></tr><tr><td>升级指定包</td><td><code>pip install --upgrade requests</code></td><td>将 <code>requests</code> 升级到最新版本</td></tr><tr><td>清理缓存的安装包</td><td><code>pip cache purge</code></td><td>删除 pip 缓存的旧版本包安装文件，释放磁盘空间</td></tr></tbody></table><h1 id="二、venv-虚拟环境与全局-Python-环境的关系"><a href="#二、venv-虚拟环境与全局-Python-环境的关系" class="headerlink" title="二、venv 虚拟环境与全局 Python 环境的关系"></a>二、venv 虚拟环境与全局 Python 环境的关系</h1><h3 id="1-核心关系：完全隔离，互不干扰"><a href="#1-核心关系：完全隔离，互不干扰" class="headerlink" title="1. 核心关系：完全隔离，互不干扰"></a>1. 核心关系：完全隔离，互不干扰</h3><p>venv 生成的虚拟环境是一个<strong>独立的“迷你 Python 环境”</strong>，其包与全局环境的包没有关联，具体表现为：</p><ul><li><strong>依赖不共享</strong>：虚拟环境中安装的包（如 <code>streamlit</code>），全局环境看不到；全局环境已装的包（如 <code>numpy</code>），虚拟环境也无法直接使用，需重新安装。</li><li><strong>版本不冲突</strong>：比如全局环境 <code>pandas</code> 是 1.0 版本，虚拟环境可安装 2.0 版本，两个版本各自运行，不会因版本差异导致项目报错。</li><li><strong>安装位置不同</strong>：<ul><li>全局包路径：Windows 通常在 <code>C:\Users\用户名\AppData\Local\Programs\Python\PythonXX\Lib\site-packages</code>；macOS&#x2F;Linux 在 <code>/Library/Python/XX/site-packages</code>。</li><li>虚拟环境包路径：在项目的虚拟环境文件夹内（如 <code>venv/Lib/site-packages</code>），仅该虚拟环境可访问。</li></ul></li></ul><h3 id="2-关键操作：如何切换-管理两个环境"><a href="#2-关键操作：如何切换-管理两个环境" class="headerlink" title="2. 关键操作：如何切换&#x2F;管理两个环境"></a>2. 关键操作：如何切换&#x2F;管理两个环境</h3><table><thead><tr><th>操作</th><th>命令（Windows）</th><th>命令（macOS&#x2F;Linux）</th><th>说明</th></tr></thead><tbody><tr><td>创建虚拟环境</td><td><code>python -m venv 虚拟环境名</code>（如 <code>python -m venv venv</code>）</td><td>同 Windows（或 <code>python3 -m venv venv</code>）</td><td>在项目根目录生成名为 <code>venv</code> 的虚拟环境文件夹，包含独立的 Python 解释器和包目录</td></tr><tr><td>激活虚拟环境</td><td><code>venv\Scripts\activate.bat</code>（CMD）&#x2F;<br><code>venv\Scripts\Activate.ps1</code>（PowerShell）</td><td><code>source venv/bin/activate</code></td><td>激活后命令行前缀会显示 <code>(venv)</code>，此时 <code>pip</code> 操作仅作用于虚拟环境</td></tr><tr><td>退出虚拟环境</td><td><code>deactivate</code></td><td>同 Windows</td><td>退出后回到全局环境，<code>pip</code> 操作恢复为全局环境</td></tr><tr><td>删除虚拟环境</td><td>直接删除 <code>venv</code> 文件夹</td><td>同 Windows</td><td>虚拟环境无“卸载”命令，删除文件夹即可彻底清除，不影响全局环境</td></tr><tr><td>虚拟环境中安装包</td><td>激活后执行 <code>pip install 包名</code></td><td>同 Windows</td><td>安装的包仅存于虚拟环境的 <code>site-packages</code>，不会污染全局</td></tr></tbody></table>]]></content>
+      
+      
+      <categories>
+          
+          <category> 学习笔记 </category>
+          
+          <category> Python </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Python </tag>
+            
+            <tag> pip </tag>
+            
+            <tag> venv </tag>
+            
+            <tag> 包管理 </tag>
+            
+            <tag> 虚拟环境 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Spring Boot 应用 CICD 集成 Jenkins 复盘文档</title>
+      <link href="/article/16/"/>
+      <url>/article/16/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Spring-Boot-应用-CICD-集成-Jenkins-复盘文档"><a href="#Spring-Boot-应用-CICD-集成-Jenkins-复盘文档" class="headerlink" title="Spring Boot 应用 CICD 集成 Jenkins 复盘文档"></a>Spring Boot 应用 CICD 集成 Jenkins 复盘文档</h1><h2 id="一、目标概述"><a href="#一、目标概述" class="headerlink" title="一、目标概述"></a>一、目标概述</h2><p>将简单的 Spring Boot 应用通过 Jenkins 实现 <strong>持续集成与持续部署（CICD）</strong>，实现代码提交后自动编译、测试、打包并部署到华为云服务器。</p><h2 id="二、问题复盘与解决方案"><a href="#二、问题复盘与解决方案" class="headerlink" title="二、问题复盘与解决方案"></a>二、问题复盘与解决方案</h2><h3 id="（一）Day-1：基础部署与环境问题"><a href="#（一）Day-1：基础部署与环境问题" class="headerlink" title="（一）Day 1：基础部署与环境问题"></a>（一）Day 1：基础部署与环境问题</h3><h4 id="1-Spring-Boot-可执行-Jar-包打包失败"><a href="#1-Spring-Boot-可执行-Jar-包打包失败" class="headerlink" title="1. Spring Boot 可执行 Jar 包打包失败"></a>1. Spring Boot 可执行 Jar 包打包失败</h4><ul><li><strong>问题现象</strong>：打包后 Jar 包仅 3KB，无法在服务器运行。</li><li><strong>原因</strong>：<code>pom.xml</code> 未配置 Spring Boot 打包插件，导致生成普通 Jar 而非可执行 Jar。</li><li><strong>解决方案</strong>：在 <code>pom.xml</code> 中添加以下插件配置：<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.2.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">goal</span>&gt;</span>repackage<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure></li></ul><h4 id="2-Java-版本不一致与优先级冲突"><a href="#2-Java-版本不一致与优先级冲突" class="headerlink" title="2. Java 版本不一致与优先级冲突"></a>2. Java 版本不一致与优先级冲突</h4><ul><li><strong>问题现象</strong>：本地用 Java 8 编译，服务器需 Java 17 运行，版本切换不生效。</li><li><strong>原因</strong>：Linux 中 <strong>环境变量硬编码（<code>JAVA_HOME</code>）优先级高于 <code>update-alternatives</code> 动态配置</strong>。</li><li><strong>解决方案</strong>：<ol><li>检查并删除 <code>/etc/profile</code>、<code>~/.bashrc</code> 等文件中硬编码的 <code>JAVA_HOME</code> 和含 Java 路径的 <code>PATH</code>。</li><li>通过 <code>update-alternatives</code> 统一版本：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --config java</span><br><span class="line"><span class="built_in">sudo</span> update-alternatives --config javac</span><br></pre></td></tr></table></figure></li></ol></li></ul><h4 id="3-Jenkins-密码丢失与重装"><a href="#3-Jenkins-密码丢失与重装" class="headerlink" title="3. Jenkins 密码丢失与重装"></a>3. Jenkins 密码丢失与重装</h4><ul><li><strong>问题现象</strong>：忘记 Jenkins 管理员密码，修改配置文件尝试重置失败。</li><li><strong>原因</strong>：Jenkins 安全配置与用户权限耦合紧密，手动修改配置易触发权限校验失败（如 403 错误）。</li><li><strong>解决方案</strong>：<ul><li>彻底卸载并重装 Jenkins（以 Ubuntu 为例）：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt remove --purge jenkins</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -rf /var/lib/jenkins /etc/jenkins /var/log/jenkins</span><br><span class="line"><span class="built_in">sudo</span> apt install jenkins</span><br></pre></td></tr></table></figure></li><li>重装后通过初始密码（<code>/var/lib/jenkins/secrets/initialAdminPassword</code>）登录，重新配置管理员账户。</li></ul></li></ul><h3 id="（二）Day-2：Jenkins-插件与-CICD-配置"><a href="#（二）Day-2：Jenkins-插件与-CICD-配置" class="headerlink" title="（二）Day 2：Jenkins 插件与 CICD 配置"></a>（二）Day 2：Jenkins 插件与 CICD 配置</h3><h4 id="1-Jenkins-插件安装失败（镜像源与网络配置）"><a href="#1-Jenkins-插件安装失败（镜像源与网络配置）" class="headerlink" title="1. Jenkins 插件安装失败（镜像源与网络配置）"></a>1. Jenkins 插件安装失败（镜像源与网络配置）</h4><ul><li><strong>问题现象</strong>：首次安装推荐插件时大量失败，提示“无法连接镜像源”。</li><li><strong>原因分析</strong>：<ul><li>清华镜像源 <code>https://mirrors.tuna.tsinghua.edu.cn/jenkins/updates/update-center.json</code> 资源 404（镜像站路径变更）。</li><li>云服务器安全组&#x2F;防火墙限制出站请求。</li></ul></li><li><strong>解决方案</strong>：<ol><li><strong>更换镜像源</strong>：将 Jenkins 升级站点 URL 替换为华为云镜像源 <code>https://mirrors.huaweicloud.com/jenkins/updates/update-center.json</code>。</li><li><strong>检查网络配置</strong>：<ul><li>本地防火墙：执行 <code>sudo ufw status</code>，若为 <code>inactive</code> 则默认放行所有出站请求；若为 <code>active</code>，需添加规则 <code>sudo ufw allow out to mirrors.huaweicloud.com</code>。</li><li>云服务器安全组：在华为云控制台“安全组规则”中，确保出方向规则允许 <code>80</code>&#x2F;<code>443</code> 端口访问公网。</li></ul></li></ol></li></ul><h4 id="2-Git-与-Maven-配置"><a href="#2-Git-与-Maven-配置" class="headerlink" title="2. Git 与 Maven 配置"></a>2. Git 与 Maven 配置</h4><ul><li><strong>Git 配置</strong>：<ul><li>需在 Jenkins 中添加 GitHub 凭证（Personal Access Token，PAT）：进入“凭证管理”→“添加凭证”，选择“Username with password”，输入 GitHub 用户名和 PAT。</li></ul></li><li><strong>Maven 配置</strong>：<ul><li>在 Jenkins“全局工具配置”中，选择“自动安装”Maven，版本与本地开发环境（如 3.5.3）保持一致，确保编译环境统一。</li></ul></li></ul><h4 id="3-SSH-远程部署配置"><a href="#3-SSH-远程部署配置" class="headerlink" title="3. SSH 远程部署配置"></a>3. SSH 远程部署配置</h4><ul><li><strong>问题现象</strong>：通过 SSH 部署到目标服务器时权限不足或连接失败。</li><li><strong>解决方案</strong>：<ol><li><strong>生成 SSH 密钥对</strong>：在 Jenkins 服务器执行 <code>ssh-keygen -t rsa</code>，生成公钥 <code>id_rsa.pub</code> 和私钥 <code>id_rsa</code>。</li><li><strong>配置目标服务器信任</strong>：将公钥 <code>id_rsa.pub</code> 追加到目标服务器的 <code>~/.ssh/authorized_keys</code> 文件中。</li><li><strong>在 Jenkins 中配置 SSH 凭证</strong>：<ul><li>进入“凭证管理”→“添加凭证”，选择“SSH Username with private key”，输入目标服务器用户名，粘贴私钥内容。</li></ul></li><li><strong>测试 SSH 连通性</strong>：在 Jenkins 任务中配置“Publish Over SSH”，选择上述凭证，填写目标服务器 IP、端口（默认 22），点击“Test Configuration”验证连通性。</li><li><strong>权限调整</strong>：确保目标服务器上 Jenkins 工作目录的属主为 <code>jenkins</code> 用户（而非 <code>root</code>），执行 <code>sudo chown -R jenkins:jenkins /path/to/workdir</code>。</li></ol></li></ul><h2 id="三、总结与经验沉淀"><a href="#三、总结与经验沉淀" class="headerlink" title="三、总结与经验沉淀"></a>三、总结与经验沉淀</h2><ol><li><p><strong>技术细节把控</strong>：</p><ul><li>Spring Boot 打包需显式配置 <code>spring-boot-maven-plugin</code>，否则生成的 Jar 包不可执行。</li><li>Java 版本管理需注意<strong>环境变量优先级高于 <code>update-alternatives</code> 动态配置</strong>，需优先清理硬编码的 <code>JAVA_HOME</code> 和 <code>PATH</code>。</li></ul></li><li><p><strong>Jenkins 运维要点</strong>：</p><ul><li>密码丢失时，重装是最可靠的兜底方案，重装后需重点关注插件镜像源和网络配置。</li><li>插件安装失败时，优先排查<strong>镜像源有效性</strong>和<strong>云服务器安全组&#x2F;防火墙规则</strong>，必要时更换国内镜像源（如华为云、Jenkins 中文社区）。</li></ul></li><li><p><strong>CICD 流程落地</strong>：</p><ul><li>Git 凭证需使用 GitHub PAT 确保权限安全，Maven 版本需与本地开发环境对齐。</li><li>SSH 部署需通过<strong>密钥对认证</strong>保障安全，同时注意目标服务器的文件权限归属。</li></ul></li></ol><p>通过本次复盘，明确了从 Spring Boot 应用开发到 Jenkins CICD 落地的全流程痛点与解决方案，后续可将这些经验沉淀为团队 CICD 规范，提升同类项目的交付效率。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 技术复盘 </category>
+          
+          <category> DevOps </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Jenkins </tag>
+            
+            <tag> CICD </tag>
+            
+            <tag> Spring Boot </tag>
+            
+            <tag> 华为云 </tag>
+            
+            <tag> 技术复盘 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>工作常见问题记录</title>
       <link href="/article/4/"/>
       <url>/article/4/</url>
