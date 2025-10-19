@@ -4,6 +4,119 @@
   
     
     <entry>
+      <title>JVM面试复习第一天总结文档</title>
+      <link href="/article/JVM1/"/>
+      <url>/article/JVM1/</url>
+      
+        <content type="html"><![CDATA[<h1 id="JVM面试复习第一天总结文档"><a href="#JVM面试复习第一天总结文档" class="headerlink" title="JVM面试复习第一天总结文档"></a>JVM面试复习第一天总结文档</h1><h2 id="一、JVM核心内存结构（面试基础必背）"><a href="#一、JVM核心内存结构（面试基础必背）" class="headerlink" title="一、JVM核心内存结构（面试基础必背）"></a>一、JVM核心内存结构（面试基础必背）</h2><h3 id="1-内存区域划分（5大核心区域）"><a href="#1-内存区域划分（5大核心区域）" class="headerlink" title="1. 内存区域划分（5大核心区域）"></a>1. 内存区域划分（5大核心区域）</h3><p>JVM内存整体分为5个区域，核心区分「线程共享」和「线程私有」，是面试高频基础考点：</p><ul><li><strong>线程共享区域</strong>（所有线程共用，易出现内存溢出）：<ul><li>堆内存：存储<code>new</code>创建的<strong>对象实例</strong>和<strong>数组</strong>（如<code>int[] arr = new int[10]</code>，数组结构+元素全在堆中），是垃圾回收（GC）的核心区域。</li><li>方法区（JDK8及以后叫「元空间」）：存储<strong>类结构信息</strong>（类名、父类、接口、字段类型）、<strong>静态变量</strong>（如<code>public static String name</code>）、<strong>运行时常量池</strong>（方法内字面量、符号引用）；注意：JDK7后「字符串常量池」从方法区移至堆中。</li></ul></li><li><strong>线程私有区域</strong>（每个线程独立拥有，随线程创建&#x2F;销毁，不会共享冲突）：<ul><li>虚拟机栈：存储线程执行方法时的「栈帧」（含局部变量表、操作数栈），方法调用时入栈、执行完出栈。</li><li>本地方法栈：作用同虚拟机栈，仅服务于本地方法（如<code>native</code>修饰的方法）。</li><li>程序计数器：记录当前线程执行的字节码行号（如下一步要执行的指令地址），<strong>内存大小固定</strong>（线程创建时确定），是JVM规范中唯一不会抛出OOM（内存溢出）的区域。</li></ul></li></ul><h2 id="二、堆内存细分与对象分配流程（GC核心关联点）"><a href="#二、堆内存细分与对象分配流程（GC核心关联点）" class="headerlink" title="二、堆内存细分与对象分配流程（GC核心关联点）"></a>二、堆内存细分与对象分配流程（GC核心关联点）</h2><p>堆是JVM内存中最大的区域，因存储对象多、GC频繁，被细分为「新生代」和「老年代」，各区域分工明确：</p><h3 id="1-堆内存比例划分（默认规则-核心参数）"><a href="#1-堆内存比例划分（默认规则-核心参数）" class="headerlink" title="1. 堆内存比例划分（默认规则+核心参数）"></a>1. 堆内存比例划分（默认规则+核心参数）</h3><table><thead><tr><th>区域层级</th><th>默认比例</th><th>控制参数</th><th>作用说明</th></tr></thead><tbody><tr><td>堆整体</td><td>新生代:老年代&#x3D;1:2</td><td><code>-XX:NewRatio=2</code></td><td>如堆总大小300MB，新生代100MB、老年代200MB；参数值&#x3D;老年代&#x2F;新生代，默认2即1:2。</td></tr><tr><td>新生代内部</td><td>Eden:S0:S1&#x3D;8:1:1</td><td><code>-XX:SurvivorRatio=8</code></td><td>如新生代100MB，Eden80MB、S0（Survivor0）10MB、S1（Survivor1）10MB；参数值&#x3D;Eden&#x2F;S区，默认8即8:1:1。</td></tr></tbody></table><h3 id="2-对象在堆中的分配与转移流程（面试高频）"><a href="#2-对象在堆中的分配与转移流程（面试高频）" class="headerlink" title="2. 对象在堆中的分配与转移流程（面试高频）"></a>2. 对象在堆中的分配与转移流程（面试高频）</h3><p>对象创建后，按「新生代→老年代」的路径流转，触发GC时完成筛选：</p><ol><li><strong>初始分配</strong>：绝大多数对象（除特殊大对象）先进入「Eden区」；<ul><li>特殊情况：大对象（大小超过Eden区一半，或通过<code>-XX:PretenureSizeThreshold</code>设置阈值）直接进入「老年代」，避免在新生代反复复制浪费资源。</li></ul></li><li><strong>第一次Minor GC触发</strong>：当Eden区满时，触发「Minor GC」（仅针对新生代的GC，耗时短）：<ul><li>标记：通过「可达性分析」（从GC Roots出发遍历引用链），标记Eden区的存活对象（有引用的非垃圾）。</li><li>转移：将存活对象复制到「S0区」，并给每个对象的「年龄计数器」+1（此时年龄&#x3D;1）。</li><li>清空：删除Eden区的垃圾对象，Eden区恢复空闲。</li></ul></li><li><strong>后续Minor GC循环</strong>：<ul><li>再次Eden区满时，触发Minor GC，同时标记Eden区+当前有对象的S区（如S0）的存活对象。</li><li>将存活对象复制到「空闲S区」（如S1），年龄计数器继续+1，清空Eden区+原S区（如S0）；S0和S1会交替作为「接收区」和「清空区」。</li></ul></li><li><strong>进入老年代的条件</strong>：当对象年龄达到默认阈值「15」时，下次Minor GC会直接将其复制到「老年代」，不再进入S区；阈值由参数<code>-XX:MaxTenuringThreshold=15</code>控制（因对象头年龄计数器仅4个比特，最大存15）。</li></ol><h2 id="三、核心GC概念与调优核心（面试高频考点）"><a href="#三、核心GC概念与调优核心（面试高频考点）" class="headerlink" title="三、核心GC概念与调优核心（面试高频考点）"></a>三、核心GC概念与调优核心（面试高频考点）</h2><h3 id="1-两类GC的区别与STW（Stop-The-World）影响"><a href="#1-两类GC的区别与STW（Stop-The-World）影响" class="headerlink" title="1. 两类GC的区别与STW（Stop The World）影响"></a>1. 两类GC的区别与STW（Stop The World）影响</h3><table><thead><tr><th>GC类型</th><th>回收范围</th><th>触发条件</th><th>STW（暂停用户线程）特性</th><th>调优重点</th></tr></thead><tbody><tr><td>Minor GC</td><td>仅新生代（Eden+S0+S1）</td><td>Eden区满</td><td>STW时间短（毫秒级），频率高，对用户线程影响小</td><td>无需刻意减少，保证新生代空间合理即可</td></tr><tr><td>Full GC</td><td>老年代+新生代+元空间</td><td>老年代空间不足（如Minor GC后存活对象需进老年代但空间不够、大对象进老年代失败）</td><td>STW时间长（几十到几百毫秒），频率低，会导致程序短暂卡顿</td><td><strong>核心调优目标：减少Full GC频率+缩短STW时间</strong></td></tr></tbody></table><ul><li><strong>STW补充说明</strong>：STW是GC执行时的必然现象（需暂停用户线程避免引用链变动），不同GC的STW时长不同。其中G1 GC默认通过<code>-XX:MaxGCPauseMillis=200</code>控制最大STW时间（默认200毫秒），而Full GC的STW时长通常远超Minor GC，因此生产环境调优的核心是通过合理配置减少Full GC的触发次数。</li></ul><h3 id="2-堆内存核心参数配置逻辑（生产环境实战）"><a href="#2-堆内存核心参数配置逻辑（生产环境实战）" class="headerlink" title="2. 堆内存核心参数配置逻辑（生产环境实战）"></a>2. 堆内存核心参数配置逻辑（生产环境实战）</h3><p>堆内存的初始大小（<code>-Xms</code>）与最大大小（<code>-Xmx</code>）是基础配置，直接影响性能稳定性：</p><ul><li><strong>参数定义</strong>：<ul><li><code>-Xms</code>：JVM启动时堆的初始内存大小（默认是物理内存的1&#x2F;64）；</li><li><code>-Xmx</code>：JVM运行时堆的最大内存大小（默认是物理内存的1&#x2F;4）。</li></ul></li><li><strong>生产环境配置原则</strong>：<strong>建议将<code>-Xms</code>与<code>-Xmx</code>设为一致</strong>，原因如下：<ol><li>避免扩容消耗：若<code>-Xms &lt; -Xmx</code>（如<code>-Xms512m -Xmx1g</code>），当堆内存使用达到512MB后，JVM需向操作系统申请更多内存（扩容至1GB），此过程会产生系统级性能消耗，且可能伴随GC，导致程序卡顿；</li><li>稳定内存占用：设为一致（如<code>-Xms2g -Xmx2g</code>），JVM启动时直接分配2GB内存，后续无需扩容，内存占用稳定，减少性能波动。</li></ol></li><li><strong>配置参考</strong>：根据服务器物理内存定大小，如服务器内存16GB，可设<code>-Xms8g -Xmx8g</code>（预留一半内存给操作系统及其他进程）。</li></ul><h2 id="四、第一天复习核心参数汇总（面试调优基础）"><a href="#四、第一天复习核心参数汇总（面试调优基础）" class="headerlink" title="四、第一天复习核心参数汇总（面试调优基础）"></a>四、第一天复习核心参数汇总（面试调优基础）</h2><table><thead><tr><th>参数名称</th><th>作用</th><th>默认值&#x2F;常用值</th><th>关联知识点</th></tr></thead><tbody><tr><td><code>-XX:NewRatio</code></td><td>控制新生代:老年代比例</td><td>2（即1:2）</td><td>堆内存整体划分</td></tr><tr><td><code>-XX:SurvivorRatio</code></td><td>控制Eden:S0:S1比例</td><td>8（即8:1:1）</td><td>新生代内部划分</td></tr><tr><td><code>-XX:MaxTenuringThreshold</code></td><td>控制对象进入老年代的年龄阈值</td><td>15</td><td>对象从新生代转老年代的条件</td></tr><tr><td><code>-XX:PretenureSizeThreshold</code></td><td>控制大对象直接进老年代的阈值</td><td>无默认（需手动设）</td><td>大对象跳过新生代的规则</td></tr><tr><td><code>-Xms</code></td><td>堆初始内存大小</td><td>物理内存1&#x2F;64</td><td>堆内存基础配置，生产建议与<code>-Xmx</code>一致</td></tr><tr><td><code>-Xmx</code></td><td>堆最大内存大小</td><td>物理内存1&#x2F;4</td><td>堆内存基础配置，避免OOM</td></tr><tr><td><code>-XX:MaxGCPauseMillis</code></td><td>控制GC最大STW时间（G1 GC为主）</td><td>200毫秒</td><td>减少Full GC对程序的卡顿影响</td></tr></tbody></table>]]></content>
+      
+      
+      <categories>
+          
+          <category> 技术 </category>
+          
+          <category> 学习笔记 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> JVM </tag>
+            
+            <tag> 面试 </tag>
+            
+            <tag> 内存结构 </tag>
+            
+            <tag> GC调优 </tag>
+            
+            <tag> 堆内存 </tag>
+            
+            <tag> 垃圾回收 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>企业级中文分词解决方案总结</title>
+      <link href="/article/ES2/"/>
+      <url>/article/ES2/</url>
+      
+        <content type="html"><![CDATA[<h1 id="企业级中文分词解决方案总结"><a href="#企业级中文分词解决方案总结" class="headerlink" title="企业级中文分词解决方案总结"></a>企业级中文分词解决方案总结</h1><h2 id="一、核心目标"><a href="#一、核心目标" class="headerlink" title="一、核心目标"></a>一、核心目标</h2><p>实现中文分词的<strong>“精准分词+动态热词更新”</strong> 双重需求：既保证日常文本（如商品标题、日志内容）分词的准确性，又能实时响应网络热词、业务新词（如行业术语、热点词汇），满足高实时性搜索场景（如内容平台热点检索、电商实时营销词搜索）。</p><h2 id="二、主流开源分词器（底层核心工具）"><a href="#二、主流开源分词器（底层核心工具）" class="headerlink" title="二、主流开源分词器（底层核心工具）"></a>二、主流开源分词器（底层核心工具）</h2><p>企业级场景中，90%以上无需自研分词器，而是基于成熟开源工具二次扩展，核心选型如下：</p><table><thead><tr><th>分词器</th><th>核心特点</th><th>核心优势</th><th>适用场景</th></tr></thead><tbody><tr><td><strong>IK Analyzer</strong></td><td>中文分词领域最主流，支持两种核心模式：<br>- <strong>ik_max_word</strong>：细粒度分词（最大化拆分词条）<br>- <strong>ik_smart</strong>：智能分词（按语义合并词条）；内置基础词库，支持自定义扩展。</td><td>成熟稳定、社区活跃、文档齐全、易集成</td><td>电商商品搜索、内容平台全文检索、日志分析等绝大多数中文场景，是企业首选。</td></tr><tr><td><strong>jieba 分词</strong></td><td>轻量高效，分词速度快；支持自定义词库、关键词提取、词性标注；Python 生态兼容性强。</td><td>性能突出、灵活度高、轻量化</td><td>非实时分词场景（如离线日志分析、数据挖掘），或 Python 技术栈优先的项目。</td></tr><tr><td><strong>THULAC</strong></td><td>清华大学开源，基于深度学习模型，分词准确率行业领先；支持词性标注，但性能略低于 IK&#x2F;jieba。</td><td>学术性强、分词精度高</td><td>对分词准确性要求极高的专业场景（如法律文本检索、医疗文献分析、学术论文处理）。</td></tr><tr><td><strong>HanLP</strong></td><td>一站式 NLP 工具集，除分词外，还支持命名实体识别（识别人名&#x2F;地名&#x2F;机构名）、句法分析等；原生支持动态词库更新。</td><td>功能全面、扩展性强</td><td>需联动多 NLP 能力的复杂场景（如智能客服语义理解、新闻内容结构化分析）。</td></tr></tbody></table><h2 id="三、热词动态更新方案（应对实时热点核心）"><a href="#三、热词动态更新方案（应对实时热点核心）" class="headerlink" title="三、热词动态更新方案（应对实时热点核心）"></a>三、热词动态更新方案（应对实时热点核心）</h2><p>针对“热点词汇实时生效（如抖音热词、突发新闻关键词）”需求，核心是实现<strong>“词库热加载”</strong>——无需重启 Elasticsearch，新词汇即可被分词器识别，主流方案如下：</p><h3 id="1-基于-IK-分词器的远程词库方案（企业最常用）"><a href="#1-基于-IK-分词器的远程词库方案（企业最常用）" class="headerlink" title="1. 基于 IK 分词器的远程词库方案（企业最常用）"></a>1. 基于 IK 分词器的远程词库方案（企业最常用）</h3><p>IK 分词器原生支持“远程词库”机制，是落地成本最低、最成熟的方案，流程如下：</p><ul><li><strong>Step 1：搭建热词服务</strong><br>开发一个简单的 HTTP 接口（如用 Spring Boot、Node.js 实现），接口返回格式为“每行一个词”的热词列表（示例：<code>奥利给\n绝绝子\n华为Mate60\n</code>）。该接口需支持实时获取最新热词（来源可对接运营后台、第三方热榜接口、用户搜索日志分析系统）。</li><li><strong>Step 2：配置 IK 远程词库</strong><br>修改 Elasticsearch 中 IK 分词器的配置文件（<code>IKAnalyzer.cfg.xml</code>，通常位于 <code>ES安装目录/plugins/ik/config/</code> 下），添加远程词库接口地址：<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">comment</span>&gt;</span>远程扩展词库配置<span class="tag">&lt;/<span class="name">comment</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- IK 会定期拉取该接口的热词（默认60秒一次，可通过源码修改间隔） --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key</span>=<span class="string">&quot;remote_ext_dict&quot;</span>&gt;</span>http://your-server/api/hotwords<span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 可选：远程停用词库（剔除无意义词汇） --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key</span>=<span class="string">&quot;remote_ext_stopwords&quot;</span>&gt;</span>http://your-server/api/stopwords<span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br></pre></td></tr></table></figure></li><li><strong>Step 3：热词生效逻辑</strong><br>IK 分词器会按配置间隔自动拉取远程词库，新热词无需重启 ES，立即应用于后续的分词操作，实现“实时生效”。</li></ul><h3 id="2-基于-ES-插件的高级方案"><a href="#2-基于-ES-插件的高级方案" class="headerlink" title="2. 基于 ES 插件的高级方案"></a>2. 基于 ES 插件的高级方案</h3><p>若需更灵活的更新策略（如手动触发更新、版本管理、批量更新），可采用 ES 专用插件：</p><ul><li><strong>推荐插件</strong>：<ul><li><code>elasticsearch-analysis-dynamic-synonym</code>：原用于动态同义词管理，可扩展支持动态词库，支持 HTTP 接口更新、本地文件更新两种方式。</li><li><strong>HanLP ES 插件</strong>：HanLP 官方提供的 ES 集成插件，自带热词更新能力，支持通过 API 实时添加&#x2F;删除词汇。</li></ul></li><li><strong>核心优势</strong>：支持词库版本回滚（避免更新错误）、自定义更新触发时机（如定时+手动双触发），适合对稳定性要求更高的大型平台。</li></ul><h2 id="四、企业级分词优化策略（提升准确性与效率）"><a href="#四、企业级分词优化策略（提升准确性与效率）" class="headerlink" title="四、企业级分词优化策略（提升准确性与效率）"></a>四、企业级分词优化策略（提升准确性与效率）</h2><p>仅靠基础分词+热词无法满足复杂业务需求，需结合以下优化手段：</p><ol><li><p><strong>定制专属词库</strong><br>在基础词库上叠加三类自定义词库，避免专业词汇拆分错误：</p><ul><li><strong>行业词库</strong>：如电商行业的“SKU、预售、包邮、凑单”；金融行业的“理财产品、定投、风控”。</li><li><strong>品牌词库</strong>：如“华为Mate60、苹果iPhone15、李佳琦”，避免被拆分为“华为&#x2F;Mate&#x2F;60”“苹果&#x2F;iPhone&#x2F;15”。</li><li><strong>业务词库</strong>：如企业内部产品名、项目名、专属术语（如某公司的“XX云平台”“XX系统”）。</li></ul></li><li><p><strong>停用词过滤</strong><br>分词时自动剔除无意义词汇，减少索引冗余、提升搜索准确率：</p><ul><li><strong>通用停用词</strong>：“的、了、啊、这、那”等语气词、助词。</li><li><strong>业务停用词</strong>：如电商场景的“点击查看、立即购买、限时优惠”等广告话术；日志场景的“INFO、ERROR、DEBUG”等日志级别标识。</li></ul></li><li><p><strong>歧义词汇纠正</strong><br>针对中文中易分错的歧义短语，通过“强制词典”指定拆分规则：</p><ul><li>示例：将“南京市长江大桥”强制拆分为“南京市&#x2F;长江大桥”，避免默认拆分为“南京&#x2F;市长&#x2F;江大桥”；将“人民银行”拆分为“人民银行”，而非“人民&#x2F;银行”。</li></ul></li><li><p><strong>分词模式适配场景</strong><br>根据业务场景选择合适的分词模式：</p><ul><li><strong>搜索场景</strong>：优先用 <code>ik_smart</code>（智能分词），如“苹果13 Pro 手机”拆为“苹果13 Pro&#x2F;手机”，更贴合用户搜索意图。</li><li><strong>数据分析场景</strong>：优先用 <code>ik_max_word</code>（细粒度分词），如“苹果13 Pro 手机”拆为“苹果&#x2F;13&#x2F;Pro&#x2F;手机”，方便按单个词条统计频次（如“13”的搜索量、“Pro”的提及量）。</li></ul></li></ol><h2 id="五、落地实施步骤（从0到1全流程）"><a href="#五、落地实施步骤（从0到1全流程）" class="headerlink" title="五、落地实施步骤（从0到1全流程）"></a>五、落地实施步骤（从0到1全流程）</h2><ol><li><strong>工具选型</strong>：优先选择 <strong>IK Analyzer</strong> 作为基础分词器，覆盖80%常规场景；特殊场景（如高精度、多NLP能力）再考虑 THULAC、HanLP。</li><li><strong>基础配置</strong>：导入“通用词库+行业词库+品牌词库+停用词库”，完成基础分词规则搭建。</li><li><strong>动态能力建设</strong>：基于 IK 远程词库方案实现热词实时更新，对接业务热词来源（运营后台、用户搜索日志、第三方热榜）。</li><li><strong>优化迭代</strong>：通过线上搜索日志分析“未命中词条”“分词错误案例”，持续补充自定义词库、调整歧义规则，迭代优化分词效果。</li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> 技术 </category>
+          
+          <category> 学习笔记 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 中文分词 </tag>
+            
+            <tag> IK Analyzer </tag>
+            
+            <tag> jieba分词 </tag>
+            
+            <tag> THULAC </tag>
+            
+            <tag> HanLP </tag>
+            
+            <tag> 热词动态更新 </tag>
+            
+            <tag> 分词优化 </tag>
+            
+            <tag> 企业级解决方案 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Elasticsearch 核心概念与基础逻辑学习总结</title>
+      <link href="/article/ES1/"/>
+      <url>/article/ES1/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Elasticsearch-核心概念与基础逻辑学习总结"><a href="#Elasticsearch-核心概念与基础逻辑学习总结" class="headerlink" title="Elasticsearch 核心概念与基础逻辑学习总结"></a>Elasticsearch 核心概念与基础逻辑学习总结</h1><h2 id="一、ES-核心定位与核心价值"><a href="#一、ES-核心定位与核心价值" class="headerlink" title="一、ES 核心定位与核心价值"></a>一、ES 核心定位与核心价值</h2><ul><li><strong>本质定位</strong>：ES 是一款基于 Lucene 构建的<strong>分布式全文搜索引擎</strong>，并非传统数据源，核心作用是为非结构化&#x2F;半结构化文本（如商品名称、日志内容）提供高效检索能力。</li><li><strong>核心价值</strong>：解决传统关系型数据库（以 MySQL 为代表）在<strong>长文本模糊查询</strong>场景下的性能瓶颈——MySQL 用 <code>LIKE %关键词%</code> 会触发全表扫描，效率极低；而 ES 依托倒排索引，可实现毫秒级文本检索，尤其适用于电商商品搜索、日志分析、内容平台全文搜索等场景。</li></ul><h2 id="二、ES-与-MySQL-核心概念对比"><a href="#二、ES-与-MySQL-核心概念对比" class="headerlink" title="二、ES 与 MySQL 核心概念对比"></a>二、ES 与 MySQL 核心概念对比</h2><p>ES 的核心概念可通过与 MySQL 类比快速理解，二者在数据组织逻辑上的对应关系如下：</p><table><thead><tr><th>对比维度</th><th>关系型数据库（MySQL）</th><th>Elasticsearch</th><th>核心说明</th></tr></thead><tbody><tr><td><strong>数据集合</strong></td><td>Table（表）</td><td><strong>Index（索引）</strong></td><td>存储一类结构化数据的集合，如“MySQL 商品表”对应“ES 商品索引”，索引名需小写，不可含特殊字符。</td></tr><tr><td><strong>数据记录</strong></td><td>Row（行）</td><td><strong>Document（文档）</strong></td><td>最小数据单元，MySQL 中一行数据对应 ES 中一个 JSON 格式文档，每个文档有唯一 <code>_id</code>（可自定义或 ES 自动生成）。</td></tr><tr><td><strong>数据字段</strong></td><td>Column（列）</td><td><strong>Field（字段）</strong></td><td>对应数据的属性，如 MySQL 中“商品名称列”对应 ES 文档中“name 字段”，字段是否分词、是否建索引由 Mapping 定义。</td></tr><tr><td><strong>结构定义</strong></td><td>DDL（建表语句）</td><td><strong>Mapping（映射）</strong></td><td>定义数据结构的“规则手册”：MySQL 用 <code>CREATE TABLE</code> 定义列类型，ES 用 Mapping 定义 Field 的数据类型、分词策略、索引规则等。</td></tr><tr><td><strong>查询方式</strong></td><td>SQL 语句</td><td>RESTful API + JSON 查询体</td><td>MySQL 用 <code>SELECT * FROM ... WHERE</code> 查询，ES 用 <code>GET /索引名/_search</code> 接口，通过 JSON 定义搜索条件。</td></tr><tr><td><strong>分布式存储</strong></td><td>需依赖分库分表（如 Sharding-JDBC）</td><td><strong>Shard（分片）</strong></td><td>ES 原生支持分布式，将一个索引拆分为多个分片（默认 5 个主分片），分布式存储在不同节点，提升性能与可用性。</td></tr></tbody></table><h2 id="三、ES-数据流转逻辑（从数据源到-ES）"><a href="#三、ES-数据流转逻辑（从数据源到-ES）" class="headerlink" title="三、ES 数据流转逻辑（从数据源到 ES）"></a>三、ES 数据流转逻辑（从数据源到 ES）</h2><p>ES 自身不产生数据，需从外部数据源同步数据，核心流转流程如下：</p><ol><li><strong>数据源头</strong>：业务数据（MySQL、Oracle 等数据库）、日志数据（服务器日志、应用日志）、文本文件等。</li><li><strong>核心同步工具</strong>：<ul><li><strong>日志数据</strong>：通过 <strong>Filebeat（轻量采集工具）</strong> 采集日志文件，再经 <strong>Logstash（数据清洗与转换）</strong> 处理后，推送到 ES。</li><li><strong>数据库数据</strong>：通过 <strong>Canal（监听 MySQL binlog）</strong> 或 <strong>Debezium</strong> 捕获数据变更，实时同步新增&#x2F;修改&#x2F;删除的数据到 ES；也可在业务代码中手动调用 ES API（如 <code>PUT /索引名/_doc/文档ID</code>）推送数据。</li><li><strong>静态历史数据</strong>：通过 ES 的 <strong>Bulk API（批量写入接口）</strong> 一次性导入，提升效率。</li></ul></li><li><strong>数据存储形态</strong>：所有同步到 ES 的数据，最终以 <strong>JSON 格式的 Document</strong> 存储在对应 Index 中。</li></ol><h2 id="四、ES-搜索高效的核心：倒排索引"><a href="#四、ES-搜索高效的核心：倒排索引" class="headerlink" title="四、ES 搜索高效的核心：倒排索引"></a>四、ES 搜索高效的核心：倒排索引</h2><p>倒排索引是 ES 实现快速检索的底层核心，本质是“<strong>从关键词映射到文档</strong>”的索引结构，核心逻辑为“空间换时间”，具体流程如下：</p><ol><li><p><strong>数据写入时：构建倒排索引</strong></p><ul><li>对需搜索的 Field（如商品名称“苹果13 Pro 手机”），按分词规则（由 Mapping 定义）拆分词条，得到“苹果”“13”“Pro”“手机”。</li><li>为每个词条建立“词条→包含该词条的 Document ID 列表”的映射关系，形成倒排索引表，示例：<table><thead><tr><th>词条</th><th>对应的 Document ID 列表</th></tr></thead><tbody><tr><td>苹果</td><td>[1, 3, 5, 7]</td></tr><tr><td>13</td><td>[1, 4, 6]</td></tr><tr><td>手机</td><td>[1, 2, 3, 8]</td></tr></tbody></table></li></ul></li><li><p><strong>用户搜索时：查询倒排索引</strong></p><ul><li>第一步：对用户输入的搜索关键词（如“苹果手机”）进行分词，得到“苹果”“手机”两个词条。</li><li>第二步：在倒排索引表中快速匹配这两个词条，获取对应的 Document ID 列表：“苹果”→[1,3,5,7]、“手机”→[1,2,3,8]。</li><li>第三步：对两个 ID 列表取交集（得到 [1,3]），直接定位到对应的 Document 并返回结果，无需扫描所有数据，实现高效检索。</li></ul></li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> 技术 </category>
+          
+          <category> 学习笔记 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Elasticsearch </tag>
+            
+            <tag> 全文搜索 </tag>
+            
+            <tag> 倒排索引 </tag>
+            
+            <tag> 关系型数据库对比 </tag>
+            
+            <tag> 数据同步 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Burpsuite抓包实践</title>
       <link href="/article/1/"/>
       <url>/article/1/</url>
