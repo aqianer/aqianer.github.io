@@ -41,6 +41,41 @@
     
     
     <entry>
+      <title>Elasticsearch 核心概念与基础逻辑学习总结</title>
+      <link href="/article/ES1/"/>
+      <url>/article/ES1/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Elasticsearch-核心概念与基础逻辑学习总结"><a href="#Elasticsearch-核心概念与基础逻辑学习总结" class="headerlink" title="Elasticsearch 核心概念与基础逻辑学习总结"></a>Elasticsearch 核心概念与基础逻辑学习总结</h1><h2 id="一、ES-核心定位与核心价值"><a href="#一、ES-核心定位与核心价值" class="headerlink" title="一、ES 核心定位与核心价值"></a>一、ES 核心定位与核心价值</h2><ul><li><strong>本质定位</strong>：ES 是一款基于 Lucene 构建的<strong>分布式全文搜索引擎</strong>，并非传统数据源，核心作用是为非结构化&#x2F;半结构化文本（如商品名称、日志内容）提供高效检索能力。</li><li><strong>核心价值</strong>：解决传统关系型数据库（以 MySQL 为代表）在<strong>长文本模糊查询</strong>场景下的性能瓶颈——MySQL 用 <code>LIKE %关键词%</code> 会触发全表扫描，效率极低；而 ES 依托倒排索引，可实现毫秒级文本检索，尤其适用于电商商品搜索、日志分析、内容平台全文搜索等场景。</li></ul><h2 id="二、ES-与-MySQL-核心概念对比"><a href="#二、ES-与-MySQL-核心概念对比" class="headerlink" title="二、ES 与 MySQL 核心概念对比"></a>二、ES 与 MySQL 核心概念对比</h2><p>ES 的核心概念可通过与 MySQL 类比快速理解，二者在数据组织逻辑上的对应关系如下：</p><table><thead><tr><th>对比维度</th><th>关系型数据库（MySQL）</th><th>Elasticsearch</th><th>核心说明</th></tr></thead><tbody><tr><td><strong>数据集合</strong></td><td>Table（表）</td><td><strong>Index（索引）</strong></td><td>存储一类结构化数据的集合，如“MySQL 商品表”对应“ES 商品索引”，索引名需小写，不可含特殊字符。</td></tr><tr><td><strong>数据记录</strong></td><td>Row（行）</td><td><strong>Document（文档）</strong></td><td>最小数据单元，MySQL 中一行数据对应 ES 中一个 JSON 格式文档，每个文档有唯一 <code>_id</code>（可自定义或 ES 自动生成）。</td></tr><tr><td><strong>数据字段</strong></td><td>Column（列）</td><td><strong>Field（字段）</strong></td><td>对应数据的属性，如 MySQL 中“商品名称列”对应 ES 文档中“name 字段”，字段是否分词、是否建索引由 Mapping 定义。</td></tr><tr><td><strong>结构定义</strong></td><td>DDL（建表语句）</td><td><strong>Mapping（映射）</strong></td><td>定义数据结构的“规则手册”：MySQL 用 <code>CREATE TABLE</code> 定义列类型，ES 用 Mapping 定义 Field 的数据类型、分词策略、索引规则等。</td></tr><tr><td><strong>查询方式</strong></td><td>SQL 语句</td><td>RESTful API + JSON 查询体</td><td>MySQL 用 <code>SELECT * FROM ... WHERE</code> 查询，ES 用 <code>GET /索引名/_search</code> 接口，通过 JSON 定义搜索条件。</td></tr><tr><td><strong>分布式存储</strong></td><td>需依赖分库分表（如 Sharding-JDBC）</td><td><strong>Shard（分片）</strong></td><td>ES 原生支持分布式，将一个索引拆分为多个分片（默认 5 个主分片），分布式存储在不同节点，提升性能与可用性。</td></tr></tbody></table><h2 id="三、ES-数据流转逻辑（从数据源到-ES）"><a href="#三、ES-数据流转逻辑（从数据源到-ES）" class="headerlink" title="三、ES 数据流转逻辑（从数据源到 ES）"></a>三、ES 数据流转逻辑（从数据源到 ES）</h2><p>ES 自身不产生数据，需从外部数据源同步数据，核心流转流程如下：</p><ol><li><strong>数据源头</strong>：业务数据（MySQL、Oracle 等数据库）、日志数据（服务器日志、应用日志）、文本文件等。</li><li><strong>核心同步工具</strong>：<ul><li><strong>日志数据</strong>：通过 <strong>Filebeat（轻量采集工具）</strong> 采集日志文件，再经 <strong>Logstash（数据清洗与转换）</strong> 处理后，推送到 ES。</li><li><strong>数据库数据</strong>：通过 <strong>Canal（监听 MySQL binlog）</strong> 或 <strong>Debezium</strong> 捕获数据变更，实时同步新增&#x2F;修改&#x2F;删除的数据到 ES；也可在业务代码中手动调用 ES API（如 <code>PUT /索引名/_doc/文档ID</code>）推送数据。</li><li><strong>静态历史数据</strong>：通过 ES 的 <strong>Bulk API（批量写入接口）</strong> 一次性导入，提升效率。</li></ul></li><li><strong>数据存储形态</strong>：所有同步到 ES 的数据，最终以 <strong>JSON 格式的 Document</strong> 存储在对应 Index 中。</li></ol><h2 id="四、ES-搜索高效的核心：倒排索引"><a href="#四、ES-搜索高效的核心：倒排索引" class="headerlink" title="四、ES 搜索高效的核心：倒排索引"></a>四、ES 搜索高效的核心：倒排索引</h2><p>倒排索引是 ES 实现快速检索的底层核心，本质是“<strong>从关键词映射到文档</strong>”的索引结构，核心逻辑为“空间换时间”，具体流程如下：</p><ol><li><p><strong>数据写入时：构建倒排索引</strong></p><ul><li>对需搜索的 Field（如商品名称“苹果13 Pro 手机”），按分词规则（由 Mapping 定义）拆分词条，得到“苹果”“13”“Pro”“手机”。</li><li>为每个词条建立“词条→包含该词条的 Document ID 列表”的映射关系，形成倒排索引表，示例：<table><thead><tr><th>词条</th><th>对应的 Document ID 列表</th></tr></thead><tbody><tr><td>苹果</td><td>[1, 3, 5, 7]</td></tr><tr><td>13</td><td>[1, 4, 6]</td></tr><tr><td>手机</td><td>[1, 2, 3, 8]</td></tr></tbody></table></li></ul></li><li><p><strong>用户搜索时：查询倒排索引</strong></p><ul><li>第一步：对用户输入的搜索关键词（如“苹果手机”）进行分词，得到“苹果”“手机”两个词条。</li><li>第二步：在倒排索引表中快速匹配这两个词条，获取对应的 Document ID 列表：“苹果”→[1,3,5,7]、“手机”→[1,2,3,8]。</li><li>第三步：对两个 ID 列表取交集（得到 [1,3]），直接定位到对应的 Document 并返回结果，无需扫描所有数据，实现高效检索。</li></ul></li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> 技术 </category>
+          
+          <category> 学习笔记 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Elasticsearch </tag>
+            
+            <tag> 全文搜索 </tag>
+            
+            <tag> 倒排索引 </tag>
+            
+            <tag> 关系型数据库对比 </tag>
+            
+            <tag> 数据同步 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>企业级中文分词解决方案总结</title>
       <link href="/article/ES2/"/>
       <url>/article/ES2/</url>
@@ -74,41 +109,6 @@
             <tag> 分词优化 </tag>
             
             <tag> 企业级解决方案 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>Elasticsearch 核心概念与基础逻辑学习总结</title>
-      <link href="/article/ES1/"/>
-      <url>/article/ES1/</url>
-      
-        <content type="html"><![CDATA[<h1 id="Elasticsearch-核心概念与基础逻辑学习总结"><a href="#Elasticsearch-核心概念与基础逻辑学习总结" class="headerlink" title="Elasticsearch 核心概念与基础逻辑学习总结"></a>Elasticsearch 核心概念与基础逻辑学习总结</h1><h2 id="一、ES-核心定位与核心价值"><a href="#一、ES-核心定位与核心价值" class="headerlink" title="一、ES 核心定位与核心价值"></a>一、ES 核心定位与核心价值</h2><ul><li><strong>本质定位</strong>：ES 是一款基于 Lucene 构建的<strong>分布式全文搜索引擎</strong>，并非传统数据源，核心作用是为非结构化&#x2F;半结构化文本（如商品名称、日志内容）提供高效检索能力。</li><li><strong>核心价值</strong>：解决传统关系型数据库（以 MySQL 为代表）在<strong>长文本模糊查询</strong>场景下的性能瓶颈——MySQL 用 <code>LIKE %关键词%</code> 会触发全表扫描，效率极低；而 ES 依托倒排索引，可实现毫秒级文本检索，尤其适用于电商商品搜索、日志分析、内容平台全文搜索等场景。</li></ul><h2 id="二、ES-与-MySQL-核心概念对比"><a href="#二、ES-与-MySQL-核心概念对比" class="headerlink" title="二、ES 与 MySQL 核心概念对比"></a>二、ES 与 MySQL 核心概念对比</h2><p>ES 的核心概念可通过与 MySQL 类比快速理解，二者在数据组织逻辑上的对应关系如下：</p><table><thead><tr><th>对比维度</th><th>关系型数据库（MySQL）</th><th>Elasticsearch</th><th>核心说明</th></tr></thead><tbody><tr><td><strong>数据集合</strong></td><td>Table（表）</td><td><strong>Index（索引）</strong></td><td>存储一类结构化数据的集合，如“MySQL 商品表”对应“ES 商品索引”，索引名需小写，不可含特殊字符。</td></tr><tr><td><strong>数据记录</strong></td><td>Row（行）</td><td><strong>Document（文档）</strong></td><td>最小数据单元，MySQL 中一行数据对应 ES 中一个 JSON 格式文档，每个文档有唯一 <code>_id</code>（可自定义或 ES 自动生成）。</td></tr><tr><td><strong>数据字段</strong></td><td>Column（列）</td><td><strong>Field（字段）</strong></td><td>对应数据的属性，如 MySQL 中“商品名称列”对应 ES 文档中“name 字段”，字段是否分词、是否建索引由 Mapping 定义。</td></tr><tr><td><strong>结构定义</strong></td><td>DDL（建表语句）</td><td><strong>Mapping（映射）</strong></td><td>定义数据结构的“规则手册”：MySQL 用 <code>CREATE TABLE</code> 定义列类型，ES 用 Mapping 定义 Field 的数据类型、分词策略、索引规则等。</td></tr><tr><td><strong>查询方式</strong></td><td>SQL 语句</td><td>RESTful API + JSON 查询体</td><td>MySQL 用 <code>SELECT * FROM ... WHERE</code> 查询，ES 用 <code>GET /索引名/_search</code> 接口，通过 JSON 定义搜索条件。</td></tr><tr><td><strong>分布式存储</strong></td><td>需依赖分库分表（如 Sharding-JDBC）</td><td><strong>Shard（分片）</strong></td><td>ES 原生支持分布式，将一个索引拆分为多个分片（默认 5 个主分片），分布式存储在不同节点，提升性能与可用性。</td></tr></tbody></table><h2 id="三、ES-数据流转逻辑（从数据源到-ES）"><a href="#三、ES-数据流转逻辑（从数据源到-ES）" class="headerlink" title="三、ES 数据流转逻辑（从数据源到 ES）"></a>三、ES 数据流转逻辑（从数据源到 ES）</h2><p>ES 自身不产生数据，需从外部数据源同步数据，核心流转流程如下：</p><ol><li><strong>数据源头</strong>：业务数据（MySQL、Oracle 等数据库）、日志数据（服务器日志、应用日志）、文本文件等。</li><li><strong>核心同步工具</strong>：<ul><li><strong>日志数据</strong>：通过 <strong>Filebeat（轻量采集工具）</strong> 采集日志文件，再经 <strong>Logstash（数据清洗与转换）</strong> 处理后，推送到 ES。</li><li><strong>数据库数据</strong>：通过 <strong>Canal（监听 MySQL binlog）</strong> 或 <strong>Debezium</strong> 捕获数据变更，实时同步新增&#x2F;修改&#x2F;删除的数据到 ES；也可在业务代码中手动调用 ES API（如 <code>PUT /索引名/_doc/文档ID</code>）推送数据。</li><li><strong>静态历史数据</strong>：通过 ES 的 <strong>Bulk API（批量写入接口）</strong> 一次性导入，提升效率。</li></ul></li><li><strong>数据存储形态</strong>：所有同步到 ES 的数据，最终以 <strong>JSON 格式的 Document</strong> 存储在对应 Index 中。</li></ol><h2 id="四、ES-搜索高效的核心：倒排索引"><a href="#四、ES-搜索高效的核心：倒排索引" class="headerlink" title="四、ES 搜索高效的核心：倒排索引"></a>四、ES 搜索高效的核心：倒排索引</h2><p>倒排索引是 ES 实现快速检索的底层核心，本质是“<strong>从关键词映射到文档</strong>”的索引结构，核心逻辑为“空间换时间”，具体流程如下：</p><ol><li><p><strong>数据写入时：构建倒排索引</strong></p><ul><li>对需搜索的 Field（如商品名称“苹果13 Pro 手机”），按分词规则（由 Mapping 定义）拆分词条，得到“苹果”“13”“Pro”“手机”。</li><li>为每个词条建立“词条→包含该词条的 Document ID 列表”的映射关系，形成倒排索引表，示例：<table><thead><tr><th>词条</th><th>对应的 Document ID 列表</th></tr></thead><tbody><tr><td>苹果</td><td>[1, 3, 5, 7]</td></tr><tr><td>13</td><td>[1, 4, 6]</td></tr><tr><td>手机</td><td>[1, 2, 3, 8]</td></tr></tbody></table></li></ul></li><li><p><strong>用户搜索时：查询倒排索引</strong></p><ul><li>第一步：对用户输入的搜索关键词（如“苹果手机”）进行分词，得到“苹果”“手机”两个词条。</li><li>第二步：在倒排索引表中快速匹配这两个词条，获取对应的 Document ID 列表：“苹果”→[1,3,5,7]、“手机”→[1,2,3,8]。</li><li>第三步：对两个 ID 列表取交集（得到 [1,3]），直接定位到对应的 Document 并返回结果，无需扫描所有数据，实现高效检索。</li></ul></li></ol>]]></content>
-      
-      
-      <categories>
-          
-          <category> 技术 </category>
-          
-          <category> 学习笔记 </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> Elasticsearch </tag>
-            
-            <tag> 全文搜索 </tag>
-            
-            <tag> 倒排索引 </tag>
-            
-            <tag> 关系型数据库对比 </tag>
-            
-            <tag> 数据同步 </tag>
             
         </tags>
       
